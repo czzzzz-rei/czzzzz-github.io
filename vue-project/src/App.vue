@@ -8,6 +8,7 @@ import FindDialog from './components/FindDialog.vue';
 import ScreenSaver from './views/ScreenSaver.vue';
 import { notes } from './data/notes';
 import { desktopTheme, THEMES } from './settings';
+import { asset } from './assets-base';
 import { loadAllArticles, sizeKB } from './data/articlesIndex';
 
 const router = useRouter();
@@ -84,19 +85,19 @@ interface IconDef {
 
 // Win11 素材库可识别的图标用 iconSrc；识别不了的暂保留 FontAwesome 原图标，后续再布置
 const icons: IconDef[] = [
-  { id: 'computer', label: '我的电脑', iconClass: 'fa fa-desktop', color: 'text-white', iconSrc: '/icons-win11/this-pc.png', to: '/computer' },
-  { id: 'docs', label: '我的文档', iconClass: 'fa fa-folder-open', color: 'text-yellow-400', iconSrc: '/icons-win11/folder-docs.png', to: '/all-notes' },
-  { id: 'control', label: '控制面板', iconClass: 'fa fa-cog', color: 'text-pink-300', iconSrc: '/icons-win11/settings.png', to: '/categories' },
-  { id: 'ie', label: 'Internet 浏览器', iconClass: 'fa fa-globe', color: 'text-blue-300', iconSrc: '/icons-win11/globe.png', to: 'https://github.com/czzzzz' },
-  { id: 'cala', label: '卡拉彼丘', iconClass: 'fa fa-star', color: 'text-white', iconSrc: '/icons-win11/cala.png', to: 'https://czzzzz.dpdns.org/' },
-  { id: 'notepad', label: '记事本', iconClass: 'fa fa-pencil-square-o', color: 'text-white', iconSrc: '/icons-win11/notepad.png', to: '/notepad' },
+  { id: 'computer', label: '我的电脑', iconClass: 'fa fa-desktop', color: 'text-white', iconSrc: asset('icons-win11/this-pc.png'), to: '/computer' },
+  { id: 'docs', label: '我的文档', iconClass: 'fa fa-folder-open', color: 'text-yellow-400', iconSrc: asset('icons-win11/folder-docs.png'), to: '/all-notes' },
+  { id: 'control', label: '控制面板', iconClass: 'fa fa-cog', color: 'text-pink-300', iconSrc: asset('icons-win11/settings.png'), to: '/categories' },
+  { id: 'ie', label: 'Internet 浏览器', iconClass: 'fa fa-globe', color: 'text-blue-300', iconSrc: asset('icons-win11/globe.png'), to: 'https://github.com/czzzzz' },
+  { id: 'cala', label: '卡拉彼丘', iconClass: 'fa fa-star', color: 'text-white', iconSrc: asset('icons-win11/cala.png'), to: 'https://czzzzz.dpdns.org/' },
+  { id: 'notepad', label: '记事本', iconClass: 'fa fa-pencil-square-o', color: 'text-white', iconSrc: asset('icons-win11/notepad.png'), to: '/notepad' },
   { id: 'airplane', label: '飞机大战', iconClass: 'fa fa-fighter-jet', color: 'text-yellow-300', to: '/airplane' },
-  { id: 'survivor', label: '桌面保卫战', iconClass: 'fa fa-shield', color: 'text-red-300', iconSrc: '/icons-win11/shield.png', to: '/survivors' },
-  { id: 'paint', label: '画图', iconClass: 'fa fa-paint-brush', color: 'text-orange-300', iconSrc: '/icons-win11/photo.png', to: '/paint' },
+  { id: 'survivor', label: '桌面保卫战', iconClass: 'fa fa-shield', color: 'text-red-300', iconSrc: asset('icons-win11/shield.png'), to: '/survivors' },
+  { id: 'paint', label: '画图', iconClass: 'fa fa-paint-brush', color: 'text-orange-300', iconSrc: asset('icons-win11/photo.png'), to: '/paint' },
   { id: 'calc', label: '计算器', iconClass: 'fa fa-calculator', color: 'text-white', to: '/calculator' },
-  { id: 'terminal', label: '命令提示符', iconClass: 'fa fa-terminal', color: 'text-green-300', iconSrc: '/icons-win11/terminal.png', to: '/terminal' },
-  { id: 'typing', label: '打字练习', iconClass: 'fa fa-keyboard-o', color: 'text-cyan-300', iconSrc: '/icons-win11/keyboard.png', to: '/typing' },
-  { id: 'bin', label: '回收站', iconClass: 'fa fa-trash-o', color: 'text-gray-400', iconSrc: '/icons-win11/recycle-bin.png', action: () => showAlert('回收站是空的。') },
+  { id: 'terminal', label: '命令提示符', iconClass: 'fa fa-terminal', color: 'text-green-300', iconSrc: asset('icons-win11/terminal.png'), to: '/terminal' },
+  { id: 'typing', label: '打字练习', iconClass: 'fa fa-keyboard-o', color: 'text-cyan-300', iconSrc: asset('icons-win11/keyboard.png'), to: '/typing' },
+  { id: 'bin', label: '回收站', iconClass: 'fa fa-trash-o', color: 'text-gray-400', iconSrc: asset('icons-win11/recycle-bin.png'), action: () => showAlert('回收站是空的。') },
 ];
 
 const LAYOUT_KEY = 'icon-layout';
@@ -342,8 +343,8 @@ const showAlert = (message: string) => {
 // 桌面主题样式（注意：url() 里用双引号，避免 Tailwind 提取类名时被 \' 转义破坏）
 // 壁纸类主题用内联 background（动态拼接的 Tailwind 类名不会被 JIT 提取）
 const WALLPAPER_URLS: Record<string, string> = {
-  wallpaper: '/wallpaper.webp',
-  fish: '/wallpaper-fish.jpg',
+  wallpaper: asset('wallpaper.webp'),
+  fish: asset('wallpaper-fish.jpg'),
 };
 const rootBgClass = computed(() => '');
 const rootBgStyle = computed((): Record<string, string> => {
@@ -413,7 +414,7 @@ const dprInfo = computed(() => Math.round((window.devicePixelRatio || 1) * 100) 
         </div>
         <div class="p-4 text-[12px] text-[#1a1a1a]">
           <div class="flex items-center gap-3 mb-3">
-            <img src="/icons-win11/win11-logo.png" class="w-10 h-10 object-contain" alt="windows">
+            <img :src="asset('icons-win11/win11-logo.png')" class="w-10 h-10 object-contain" alt="windows">
             <div>
               <div class="font-semibold text-[#1a1a1a] text-sm">CZ's Blog v3.0</div>
               <div class="text-gray-600 text-[11px]">Windows 11 Edition · Powered by Vue 3</div>
@@ -468,7 +469,7 @@ const dprInfo = computed(() => Math.round((window.devicePixelRatio || 1) * 100) 
     <!-- Shutdown Screen：Win11 风格 -->
     <div v-if="isShutdown" class="fixed inset-0 bg-[#1f2b3a] z-[100] flex flex-col items-center justify-center gap-8">
       <div class="flex flex-col items-center gap-6 text-center">
-        <img src="/icons-win11/win11-logo.png" class="w-16 h-16 object-contain" alt="windows">
+        <img :src="asset('icons-win11/win11-logo.png')" class="w-16 h-16 object-contain" alt="windows">
         <div>
           <div class="text-xl text-white font-light">正在关机...</div>
           <div class="text-sm text-white/60 mt-2">It is now safe to turn off your computer.</div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { asset } from '../assets-base';
 
 const isStartMenuOpen = ref(false);
 const currentTime = ref('');
@@ -12,14 +13,14 @@ const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
 
 // 已固定应用网格（Win11 开始菜单；与桌面图标同源）
 const pinnedApps = [
-  { label: '我的电脑', to: '/computer', icon: '/icons-win11/this-pc.png' },
-  { label: '我的文档', to: '/all-notes', icon: '/icons-win11/folder-docs.png' },
-  { label: '控制面板', to: '/categories', icon: '/icons-win11/settings.png' },
-  { label: '记事本', to: '/notepad', icon: '/icons-win11/notepad.png' },
-  { label: '画图', to: '/paint', icon: '/icons-win11/photo.png' },
-  { label: '终端', to: '/terminal', icon: '/icons-win11/terminal.png' },
-  { label: '打字练习', to: '/typing', icon: '/icons-win11/keyboard.png' },
-  { label: '浏览器', to: 'https://github.com/czzzzz', icon: '/icons-win11/globe.png' },
+  { label: '我的电脑', to: '/computer', icon: asset('icons-win11/this-pc.png') },
+  { label: '我的文档', to: '/all-notes', icon: asset('icons-win11/folder-docs.png') },
+  { label: '控制面板', to: '/categories', icon: asset('icons-win11/settings.png') },
+  { label: '记事本', to: '/notepad', icon: asset('icons-win11/notepad.png') },
+  { label: '画图', to: '/paint', icon: asset('icons-win11/photo.png') },
+  { label: '终端', to: '/terminal', icon: asset('icons-win11/terminal.png') },
+  { label: '打字练习', to: '/typing', icon: asset('icons-win11/keyboard.png') },
+  { label: '浏览器', to: 'https://github.com/czzzzz', icon: asset('icons-win11/globe.png') },
   { label: '计算器', to: '/calculator', icon: '' },
 ];
 
@@ -189,18 +190,18 @@ defineProps<{
       </div>
       <div class="px-4 pb-2 grid grid-cols-2 gap-1">
         <div class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/[0.05] cursor-pointer" @click="handleMenuNavigate('/airplane')">
-          <img src="/icons-win11/star.png" class="w-7 h-7 object-contain" alt="star">
+          <img :src="asset('icons-win11/star.png')" class="w-7 h-7 object-contain" alt="star">
           <div class="text-[12px]"><div>飞机大战</div><div class="text-[10px] text-gray-500">怀旧小游戏</div></div>
         </div>
         <div class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-black/[0.05] cursor-pointer" @click="handleMenuNavigate('/survivors')">
-          <img src="/icons-win11/shield.png" class="w-7 h-7 object-contain" alt="shield">
+          <img :src="asset('icons-win11/shield.png')" class="w-7 h-7 object-contain" alt="shield">
           <div class="text-[12px]"><div>桌面保卫战</div><div class="text-[10px] text-gray-500">守一波基地</div></div>
         </div>
       </div>
       <!-- 底部：用户 + 关机 -->
       <div class="mt-auto flex items-center justify-between px-6 py-3 border-t border-black/10 bg-black/[0.02] rounded-b-lg">
         <div class="flex items-center gap-2 px-2 py-1 rounded hover:bg-black/5 cursor-pointer" @click="handlePinClick('https://github.com/czzzzz')">
-          <img src="/icons-win11/globe.png" class="w-6 h-6 object-contain" alt="user">
+          <img :src="asset('icons-win11/globe.png')" class="w-6 h-6 object-contain" alt="user">
           <span class="text-[12px] text-gray-800">CZ</span>
         </div>
         <button
@@ -231,7 +232,7 @@ defineProps<{
         :class="isStartMenuOpen ? 'bg-black/[0.08]' : ''"
         title="开始"
       >
-        <img src="/icons-win11/win11-logo.png" class="w-6 h-6 object-contain" alt="win">
+        <img :src="asset('icons-win11/win11-logo.png')" class="w-6 h-6 object-contain" alt="win">
       </button>
       <div class="w-[1px] h-6 bg-black/10 mx-0.5"></div>
       <div class="flex items-center gap-1 overflow-hidden min-w-0">

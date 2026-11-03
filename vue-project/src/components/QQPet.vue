@@ -10,6 +10,7 @@
 // - 右键弹 Win11 菜单：喂零食/摸摸头/哄睡觉/回任务栏
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { asset } from '../assets-base';
 
 // ============ 动画池（与 dsh-pet assets/config.jsonc 同源，文件均已复制） ============
 const ANIM = {
@@ -228,7 +229,7 @@ const mirror = computed(() => {
 const currentAnim = ref('待机呼吸休闲');
 
 function animUrl(name: string): string {
-  return `/pet/webm/${encodeURIComponent(name)}.webm`;
+  return asset(`pet/webm/${encodeURIComponent(name)}.webm`);
 }
 
 function playAnim(name: string, opts?: { loop?: boolean; onEnd?: () => void }): void {

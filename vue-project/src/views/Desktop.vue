@@ -2,6 +2,7 @@
 import { ref, inject, watch, computed, onMounted, type ComputedRef } from 'vue';
 import Window from '../components/Window.vue';
 import { notes } from '../data/notes';
+import { asset } from '../assets-base';
 
 const articleCount = notes.length;
 const categoryCount = new Set(notes.map(n => n.category).filter(Boolean)).size;
@@ -54,7 +55,7 @@ const focusWindow = () => {
   >
     <div class="flex flex-col items-center text-center gap-3">
       <div class="flex items-center gap-4">
-        <img src="/icons-win11/win11-logo.png" class="w-16 h-16 object-contain" alt="windows">
+        <img :src="asset('icons-win11/win11-logo.png')" class="w-16 h-16 object-contain" alt="windows">
         <div class="text-left">
           <h1 class="text-xl font-bold text-[#0067c0]">CZ's Blog</h1>
           <p class="text-xs text-gray-600">Version 3.0 · Windows 11 Edition</p>
