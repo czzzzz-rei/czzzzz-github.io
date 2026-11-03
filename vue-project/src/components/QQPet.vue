@@ -44,6 +44,14 @@ const CATEGORIES: Array<{ weight: number; noMirror?: boolean; actions: string[] 
 ];
 const NO_MIRROR = new Set<string>(CATEGORIES.filter(c => c.noMirror).flatMap(c => c.actions));
 
+// 全量动画清单（含移动/事件动画）：挂载后全部预加载，任何动作触发都零等待
+const ALL_ANIMS: string[] = Array.from(new Set([
+  ...ANIM.idle, ...ANIM.turn, ...ANIM.drag, ...ANIM.sleep, ...ANIM.eat,
+  ...ANIM.clicks, ...ANIM.dizzy,
+  ...MOVE_ACTIONS.map(m => m.name),
+  ...CATEGORIES.flatMap(c => c.actions),
+]));
+
 // ============ 台词库（大肥鱼语气） ============
 const QUOTES = [
   '鱼片有资源吗？',
@@ -231,6 +239,28 @@ const videoB = ref<HTMLVideoElement | null>(null);
 const frontIsA = ref(true);
 // 预加载缓存：已播过的动画再次播放零延迟
 const animPreload = new Set<string>();
+// 透明视频支持性：不支持（夸克等国产内核、旧浏览器）时降级为静态形象图，
+// 否则整个桌宠会rendering成黑底长方块
+const alphaOk = ref(true);
+
+function detectAlphaSupport(): void {
+  try {
+    const cv = document.createElement('canvas');
+    cv.width = 2; cv.height = 2;
+    const gl = cv.getContext('webgl') || cv.getContext('experimental-webgl') as WebGLRenderingContext | null;
+    if (!gl) { alphaOk.value = false; return; }
+    // VP9-in-WebM 解码支持探测（iOS Safari < 16.4 / 老内核不支持）
+    const canVp9 = gl.getExtension('WEBGL_compressed_texture_vp9')
+      || document.createElement('video').canPlayType('video/webm; codecs="vp9"') !== '';
+    // 夸克/UC 等国内壳的 UA 特征 + canPlayType 通过但实际 alpha 渲染异常，无法纯 JS 检测，
+    // 用保守策略：非主流内核 UA 检测（Quark/UC/QQ浏览器/百度）直接降级
+    const ua = navigator.userAgent;
+    const shell = /Quark|UCBrowser|MQQBrowser|Baidu| Hey|HeyTap|OppoBrowser|VivoBrowser/.test(ua);
+    alphaOk.value = canVp9 && !shell;
+  } catch {
+    alphaOk.value = true; // 检测失败按支持处理，保持原体验
+  }
+}
 
 function animUrl(name: string): string {
   return asset(`pet/webm/${encodeURIComponent(name)}.webm`);
@@ -239,17 +269,17 @@ function animUrl(name: string): string {
 function preloadAnim(name: string): void {
   if (animPreload.has(name)) return;
   animPreload.add(name);
-  // 静默预热：让浏览器缓存该 webm
+  // 静默预热：让浏览器缓存该 webm（HTTP 缓存持久生效，不清空 src，避免二次播放重新下载）
   const v = document.createElement('video');
   v.preload = 'auto';
   v.muted = true;
   v.src = animUrl(name);
   v.load();
-  // 10s 后可被 GC（缓存目的已达成）
-  setTimeout(() => { v.src = ''; }, 10000);
 }
 
 function playAnim(name: string, opts?: { loop?: boolean; onEnd?: () => void }): void {
+  // 降级模式：不支持透明视频时只换台词/状态，形象保持静态图
+  if (!alphaOk.value) { currentAnim.value = name; opts?.onEnd?.(); return; }
   // 双缓冲：写向"当前不在前台"的那个 video；单 video 兜底（理论上不会走到）
   const next = (frontIsA.value ? videoB.value : videoA.value) ?? videoA.value ?? videoB.value;
   if (!next) return;
@@ -292,8 +322,6 @@ function playAnim(name: string, opts?: { loop?: boolean; onEnd?: () => void }): 
   next.src = animUrl(name);
   next.load();
   next.play().catch(() => { /* 等 loadeddata 后再播 */ });
-  // 预热下一次可能用到的待机动画
-  setTimeout(() => preloadAnim(pick(ANIM.idle)), 3000);
 }
 
 function playIdle(): void {
@@ -1124,15 +1152,19 @@ function onGoHome(): void {
 
 onMounted(() => {
   vw = window.innerWidth;
+  detectAlphaSupport();
   loadState();
   // 待机动画设 loop 且懒加载：首帧尽快出现（playAnim 内部会等 loadeddata 再淡入）
   playIdle();
   if (isFloating()) showBubble();
   schedule(1800);
   vitalsTimer = setInterval(updateVitals, 20000);
-  // 空闲后预热常用动画（点击回应/睡姿/拖拽），后续交互零等待
+  // 全量预热：所有动画后台依次下载（浏览器 HTTP 缓存持久保存，
+  // 下载完断网也能播；带宽被首屏任务抢占时自动让路）
   const warmup = (): void => {
-    for (const a of [...ANIM.clicks.slice(0, 2), ...ANIM.sleep, ...ANIM.drag]) preloadAnim(a);
+    ALL_ANIMS.forEach((name, i) => {
+      setTimeout(() => preloadAnim(name), i * 400);   // 间隔 400ms 排队，避免挤爆连接
+    });
   };
   if ('requestIdleCallback' in window) {
     (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(warmup);
@@ -1220,30 +1252,40 @@ onUnmounted(() => {
     <!-- 阴影 -->
     <div class="pet-shadow" :style="{ opacity: flying ? 0 : (dragging ? 0.15 : 0.3), transform: `scaleX(${dragging ? 0.7 : 1})` }"></div>
 
-    <!-- 大肥鱼本体：webm 动画，双缓冲交叉淡入（素材朝左，朝右时镜像） -->
+    <!-- 大肥鱼本体：webm 动画，双缓冲交叉淡入（素材朝左，朝右时镜像）；不支持透明视频时显示静态形象 -->
     <div class="pet-mirror" :class="{ mirrored: mirror }" :style="bodyStyle">
-      <video
-        ref="videoA"
-        class="pet-body"
+      <img
+        v-if="!alphaOk"
+        class="pet-body pet-fallback"
         :width="PET_W"
         :height="PET_H"
-        muted
-        playsinline
-        autoplay
-        loop
-        disablepictureinpicture
-      ></video>
-      <video
-        ref="videoB"
-        class="pet-body"
-        :width="PET_W"
-        :height="PET_H"
-        muted
-        playsinline
-        autoplay
-        loop
-        disablepictureinpicture
-      ></video>
+        :src="asset('pet/fallback.png')"
+        alt="大肥鱼"
+      />
+      <template v-else>
+        <video
+          ref="videoA"
+          class="pet-body"
+          :width="PET_W"
+          :height="PET_H"
+          muted
+          playsinline
+          autoplay
+          loop
+          disablepictureinpicture
+        ></video>
+        <video
+          ref="videoB"
+          class="pet-body"
+          :width="PET_W"
+          :height="PET_H"
+          muted
+          playsinline
+          autoplay
+          loop
+          disablepictureinpicture
+        ></video>
+      </template>
     </div>
 
     <!-- 喂零食：小饼干滑到嘴边被吃掉 -->
@@ -1336,6 +1378,8 @@ onUnmounted(() => {
   pointer-events: none;
 }
 .pet-body.is-front { opacity: 1; }
+/* 降级静态形象：object-fit cover 让立绘撑满（原素材 1:1，容器 16:9，contain 会左右留空） */
+.pet-body.pet-fallback { object-fit: contain; opacity: 1; }
 
 /* 骑窗口：轻轻上下浮动 */
 .dafeiyu.riding .pet-mirror { animation: rideBob 1.8s ease-in-out infinite; }

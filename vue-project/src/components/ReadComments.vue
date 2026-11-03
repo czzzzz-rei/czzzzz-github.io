@@ -60,16 +60,19 @@ function injectGiscus(): void {
     loading: 'lazy',
   });
   box.appendChild(s);
-  // Chrome 头像缺失修复：giscus 的头像走 avatars.githubusercontent.com，
-  // 部分 Chrome（隐私设置/扩展拦截 Referer）下被防盗链拒绝。给 iframe 容器
-  // 声明 referrer 政策无意义（跨域 iframe 内部请求），改在 inject 前给页面
-  // 加 <meta name="referrer" content="no-referrer">，让站内所有请求都不带
-  // Referer，绕过基于 Referer 的拦截。
-  if (!document.querySelector('meta[name="referrer"]')) {
-    const m = document.createElement('meta');
-    m.name = 'referrer';
-    m.content = 'no-referrer';
-    document.head.appendChild(m);
+  // Chrome 头像缺失缓解：预连接 GitHub 头像 CDN（dns-prefetch + preconnect），
+  // 减少首屏头像因连接建立慢而超时缺失的概率。若被扩展强拦则无解（用户侧设置）。
+  const hints: Array<[string, string]> = [
+    ['dns-prefetch', 'https://avatars.githubusercontent.com'],
+    ['preconnect', 'https://avatars.githubusercontent.com'],
+    ['dns-prefetch', 'https://giscus.app'],
+  ];
+  for (const [rel, href] of hints) {
+    if (document.querySelector(`link[rel="${rel}"][href="${href}"]`)) continue;
+    const link = document.createElement('link');
+    link.rel = rel;
+    link.href = href;
+    document.head.appendChild(link);
   }
 }
 
@@ -97,15 +100,14 @@ function onMessage(e: MessageEvent): void {
   if (typeof d.resizeHeight === 'number') {
     status.value = 'ready';
     if (timeoutTimer) clearTimeout(timeoutTimer);
-    // Edge 抖动修复：giscus 高频上报 resizeHeight（头像懒加载等），逐条套用导致
-    // iframe 高度抖动。节流 300ms 且只增不减（减小时平滑收紧），面板高度稳定。
-    const h = Math.round(d.resizeHeight);
-    if (lastResize === null || Math.abs(h - lastResize) > 8) {
-      lastResize = h;
-      applyHeight(h);
-    } else {
-      if (resizeThrottle) clearTimeout(resizeThrottle);
-      resizeThrottle = setTimeout(() => { lastResize = h; applyHeight(h); }, 300);
+    // Edge 抖动根治：完全忽略 giscus 的 resizeHeight 上报，改用固定高度 +
+    // 内部滚动（面板 body 本身就有 max-height + overflow）。iframe 定高后，
+    // 内部内容的增减只会触发 iframe 内部滚动，面板外框纹丝不动。
+    const iframe = boxEl.value?.querySelector('iframe.giscus-frame') as HTMLIFrameElement | null;
+    if (iframe) {
+      iframe.style.height = '100%';
+      iframe.style.setProperty('min-height', '100%', 'important');
+      iframe.style.setProperty('max-height', '100%', 'important');
     }
   } else if (d.error) {
     if (status.value === 'loading') {
@@ -116,21 +118,6 @@ function onMessage(e: MessageEvent): void {
   }
   const n = d.discussion?.totalCommentCount;
   if (typeof n === 'number') count.value = n;
-}
-
-// iframe 高度应用：设置 min-height 而非 height，只增不减，杜绝视觉抖动
-let lastResize: number | null = null;
-let resizeThrottle: ReturnType<typeof setTimeout> | undefined;
-function applyHeight(h: number): void {
-  const box = boxEl.value;
-  if (!box) return;
-  box.style.minHeight = '';
-  const iframe = box.querySelector('iframe.giscus-frame') as HTMLIFrameElement | null;
-  if (iframe) {
-    // 只增不减：新高度比当前矮时保留较大值，避免反复伸缩
-    const cur = parseFloat(iframe.style.height || '0');
-    iframe.style.height = `${Math.max(h, cur * 0.98)}px`;
-  }
 }
 
 // 登录弹窗关闭时通过 opener 通知到这里：重新注入 widget 立刻带上登录态
@@ -282,14 +269,22 @@ function toggle(): void {
 }
 .read-comments-fail button:hover { background: #f6f6f6; }
 .read-comments-box {
-  overflow-y: auto;
+  overflow-y: auto;             /* 滚动发生在容器内部，iframe 定高不撑开面板 */
   background: #fff;
   border: 1px solid #e5e5e5;
   border-radius: 4px;
-  min-height: 120px;
+  height: 380px;                /* 固定高度：giscus 的 resizeHeight 上报被忽略，Edge 不再抖动 */
+  position: relative;
 }
-/* giscus iframe 撑满容器宽度 */
-.read-comments-box :deep(iframe.giscus-frame) { width: 100%; border: none; }
+/* giscus iframe 撑满固定高度容器 */
+.read-comments-box :deep(iframe.giscus-frame) {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: 100% !important;
+  border: none;
+  display: block;
+}
 /* 移动端不再隐藏：面板默认收起，展开后接近全屏、可随时收起，手机也能评论 */
 @media (max-width: 899px) {
   .read-comments {
