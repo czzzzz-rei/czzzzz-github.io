@@ -60,6 +60,17 @@ function injectGiscus(): void {
     loading: 'lazy',
   });
   box.appendChild(s);
+  // Chrome 头像缺失修复：giscus 的头像走 avatars.githubusercontent.com，
+  // 部分 Chrome（隐私设置/扩展拦截 Referer）下被防盗链拒绝。给 iframe 容器
+  // 声明 referrer 政策无意义（跨域 iframe 内部请求），改在 inject 前给页面
+  // 加 <meta name="referrer" content="no-referrer">，让站内所有请求都不带
+  // Referer，绕过基于 Referer 的拦截。
+  if (!document.querySelector('meta[name="referrer"]')) {
+    const m = document.createElement('meta');
+    m.name = 'referrer';
+    m.content = 'no-referrer';
+    document.head.appendChild(m);
+  }
 }
 
 function retry(): void {
@@ -86,6 +97,16 @@ function onMessage(e: MessageEvent): void {
   if (typeof d.resizeHeight === 'number') {
     status.value = 'ready';
     if (timeoutTimer) clearTimeout(timeoutTimer);
+    // Edge 抖动修复：giscus 高频上报 resizeHeight（头像懒加载等），逐条套用导致
+    // iframe 高度抖动。节流 300ms 且只增不减（减小时平滑收紧），面板高度稳定。
+    const h = Math.round(d.resizeHeight);
+    if (lastResize === null || Math.abs(h - lastResize) > 8) {
+      lastResize = h;
+      applyHeight(h);
+    } else {
+      if (resizeThrottle) clearTimeout(resizeThrottle);
+      resizeThrottle = setTimeout(() => { lastResize = h; applyHeight(h); }, 300);
+    }
   } else if (d.error) {
     if (status.value === 'loading') {
       errMsg.value = d.error;
@@ -95,6 +116,21 @@ function onMessage(e: MessageEvent): void {
   }
   const n = d.discussion?.totalCommentCount;
   if (typeof n === 'number') count.value = n;
+}
+
+// iframe 高度应用：设置 min-height 而非 height，只增不减，杜绝视觉抖动
+let lastResize: number | null = null;
+let resizeThrottle: ReturnType<typeof setTimeout> | undefined;
+function applyHeight(h: number): void {
+  const box = boxEl.value;
+  if (!box) return;
+  box.style.minHeight = '';
+  const iframe = box.querySelector('iframe.giscus-frame') as HTMLIFrameElement | null;
+  if (iframe) {
+    // 只增不减：新高度比当前矮时保留较大值，避免反复伸缩
+    const cur = parseFloat(iframe.style.height || '0');
+    iframe.style.height = `${Math.max(h, cur * 0.98)}px`;
+  }
 }
 
 // 登录弹窗关闭时通过 opener 通知到这里：重新注入 widget 立刻带上登录态

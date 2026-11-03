@@ -53,6 +53,12 @@ onMounted(() => {
   window.addEventListener('keydown', resetIdle);
   window.addEventListener('wheel', resetIdle, { passive: true });
   resetIdle();
+  // 移除首屏骨架（应用挂载完成后淡出）
+  const shell = document.getElementById('boot-shell');
+  if (shell) {
+    shell.style.opacity = '0';
+    setTimeout(() => shell.remove(), 350);
+  }
 });
 onUnmounted(() => {
   window.removeEventListener('open-sysprops', openSysProps);

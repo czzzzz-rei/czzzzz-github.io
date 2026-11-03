@@ -180,7 +180,6 @@ const heartList = ref<number[]>([]);
 const helpOpen = ref(false);
 
 const petEl = ref<HTMLElement | null>(null);
-const videoEl = ref<HTMLVideoElement | null>(null);
 
 let timer: ReturnType<typeof setTimeout> | undefined;
 let bubbleTimer: ReturnType<typeof setTimeout> | undefined;
@@ -225,27 +224,76 @@ const mirror = computed(() => {
   return dir.value === 'right';
 });
 
-// ============ 动画播放（webm 切换） ============
+// ============ 动画播放（webm 切换，双缓冲：新动画加载就位后才切显示，避免切换瞬间白帧/消失） ============
 const currentAnim = ref('待机呼吸休闲');
+const videoA = ref<HTMLVideoElement | null>(null);
+const videoB = ref<HTMLVideoElement | null>(null);
+const frontIsA = ref(true);
+// 预加载缓存：已播过的动画再次播放零延迟
+const animPreload = new Set<string>();
 
 function animUrl(name: string): string {
   return asset(`pet/webm/${encodeURIComponent(name)}.webm`);
 }
 
+function preloadAnim(name: string): void {
+  if (animPreload.has(name)) return;
+  animPreload.add(name);
+  // 静默预热：让浏览器缓存该 webm
+  const v = document.createElement('video');
+  v.preload = 'auto';
+  v.muted = true;
+  v.src = animUrl(name);
+  v.load();
+  // 10s 后可被 GC（缓存目的已达成）
+  setTimeout(() => { v.src = ''; }, 10000);
+}
+
 function playAnim(name: string, opts?: { loop?: boolean; onEnd?: () => void }): void {
-  const el = videoEl.value;
-  if (!el) return;
+  // 双缓冲：写向"当前不在前台"的那个 video；单 video 兜底（理论上不会走到）
+  const next = (frontIsA.value ? videoB.value : videoA.value) ?? videoA.value ?? videoB.value;
+  if (!next) return;
   const my = ++animToken;
   currentAnim.value = name;
-  el.loop = !!opts?.loop;
+  next.loop = !!opts?.loop;
   const onEnded = () => {
     if (my !== animToken) return;
-    el.removeEventListener('ended', onEnded);
+    next.removeEventListener('ended', onEnded);
     opts?.onEnd?.();
   };
-  el.addEventListener('ended', onEnded);
-  el.src = animUrl(name);
-  el.play().catch(() => { /* 自动播放被拦截时静默 */ });
+  next.addEventListener('ended', onEnded);
+  // 加载兜底：素材加载失败/卡住时释放 token，防止状态机永久挂起
+  const loadGuard = () => {
+    if (my !== animToken) return;
+    next.removeEventListener('error', loadGuard);
+    opts?.onEnd?.();
+  };
+  next.addEventListener('error', loadGuard);
+  const onReady = () => {
+    if (my !== animToken) { next.removeEventListener('loadeddata', onReady); return; }
+    next.removeEventListener('loadeddata', onReady);
+    next.removeEventListener('error', loadGuard);
+    // 双缓冲就位切换：淡入新视频，旧视频暂停退场
+    const old = videoA.value && videoB.value ? (frontIsA.value ? videoA.value : videoB.value) : null;
+    if (old && old !== next) {
+      old.pause();
+      old.classList.remove('is-front');
+    }
+    next.classList.add('is-front');
+    if (videoA.value && videoB.value) frontIsA.value = next === videoA.value;
+    next.play().catch(() => { /* 自动播放被拦截时静默 */ });
+  };
+  next.addEventListener('loadeddata', onReady);
+  // 若已在缓存中（秒回），loadeddata 可能不再触发——直接检查状态
+  if (next.readyState >= 2) {
+    next.removeEventListener('loadeddata', onReady);
+    onReady();
+  }
+  next.src = animUrl(name);
+  next.load();
+  next.play().catch(() => { /* 等 loadeddata 后再播 */ });
+  // 预热下一次可能用到的待机动画
+  setTimeout(() => preloadAnim(pick(ANIM.idle)), 3000);
 }
 
 function playIdle(): void {
@@ -430,7 +478,8 @@ function startMove(): void {
   const fallbackDur = 2600;
   const step = (): void => {
     if (my !== animToken || !moving.value) return;
-    const v = videoEl.value;
+    // 读当前前台视频的播放进度驱动位移（双缓冲下取 is-front 的那个）
+    const v = frontIsA.value ? videoA.value : videoB.value;
     const dur = (v && Number.isFinite(v.duration) && v.duration > 0) ? v.duration * 1000 : fallbackDur;
     const t = v ? v.currentTime * 1000 : (performance.now() - t0);
     const span = Math.max(200, dur - (act.lead + act.tail) * 1000);
@@ -1076,10 +1125,20 @@ function onGoHome(): void {
 onMounted(() => {
   vw = window.innerWidth;
   loadState();
+  // 待机动画设 loop 且懒加载：首帧尽快出现（playAnim 内部会等 loadeddata 再淡入）
   playIdle();
   if (isFloating()) showBubble();
   schedule(1800);
   vitalsTimer = setInterval(updateVitals, 20000);
+  // 空闲后预热常用动画（点击回应/睡姿/拖拽），后续交互零等待
+  const warmup = (): void => {
+    for (const a of [...ANIM.clicks.slice(0, 2), ...ANIM.sleep, ...ANIM.drag]) preloadAnim(a);
+  };
+  if ('requestIdleCallback' in window) {
+    (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(warmup);
+  } else {
+    setTimeout(warmup, 4000);
+  }
   try {
     if (!localStorage.getItem('pet-hint-shown')) {
       localStorage.setItem('pet-hint-shown', '1');
@@ -1161,10 +1220,21 @@ onUnmounted(() => {
     <!-- 阴影 -->
     <div class="pet-shadow" :style="{ opacity: flying ? 0 : (dragging ? 0.15 : 0.3), transform: `scaleX(${dragging ? 0.7 : 1})` }"></div>
 
-    <!-- 大肥鱼本体：webm 动画（素材朝左，朝右时镜像） -->
+    <!-- 大肥鱼本体：webm 动画，双缓冲交叉淡入（素材朝左，朝右时镜像） -->
     <div class="pet-mirror" :class="{ mirrored: mirror }" :style="bodyStyle">
       <video
-        ref="videoEl"
+        ref="videoA"
+        class="pet-body"
+        :width="PET_W"
+        :height="PET_H"
+        muted
+        playsinline
+        autoplay
+        loop
+        disablepictureinpicture
+      ></video>
+      <video
+        ref="videoB"
         class="pet-body"
         :width="PET_W"
         :height="PET_H"
@@ -1252,14 +1322,20 @@ onUnmounted(() => {
 }
 .dafeiyu.dragging { cursor: grabbing; }
 
-.pet-mirror { width: 100%; height: 100%; transform-origin: 50% 100%; }
+.pet-mirror { width: 100%; height: 100%; transform-origin: 50% 100%; position: relative; }
 .pet-mirror.mirrored { transform: scaleX(-1); }
 .pet-body {
   display: block;
   object-fit: contain;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
+  position: absolute;
+  inset: 0;
+  /* 手机浏览器对 VP9 alpha 解码不一致：不给任何背景，用双缓冲交叉淡入遮切换 */
+  background: transparent;
+  opacity: 0;
+  transition: opacity 0.18s ease;
   pointer-events: none;
 }
+.pet-body.is-front { opacity: 1; }
 
 /* 骑窗口：轻轻上下浮动 */
 .dafeiyu.riding .pet-mirror { animation: rideBob 1.8s ease-in-out infinite; }
