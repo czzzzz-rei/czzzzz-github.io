@@ -20,12 +20,20 @@
     <meta name="twitter:description" content="复刻 Windows 11 桌面的个人技术博客：Java、Spring Boot、数据库、DevOps 学习笔记，内置飞机大战等小程序。" />
     <meta name="twitter:image" content="https://czzzzz-rei.github.io/og-card.png" />
     <title>CZ's Blog — Windows 11 风格技术博客</title>
-    <script type="module" crossorigin src="/assets/index-BNl7Oz0C.js"></script>
+    <link rel="preload" as="image" href="/wallpaper-fish.jpg" />
+    <script type="module" crossorigin src="/assets/index-Da1XaNi6.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/vendor-3L4tGMFV.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-86AFJ7Py.css">
+    <link rel="stylesheet" crossorigin href="/assets/index-D_6rVZgH.css">
   </head>
   <body>
     <div id="app"></div>
+    <!-- 首屏骨架：JS 加载期间就有壁纸和桌面轮廓，消除白屏等待 -->
+    <div id="boot-shell" style="position:fixed;inset:0;background:url('/wallpaper-fish.jpg') center/cover no-repeat;">
+      <div style="position:absolute;bottom:0;left:0;right:0;height:48px;background:rgba(243,243,243,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;">
+        <div style="width:24px;height:24px;border-radius:50%;border:3px solid rgba(0,103,192,0.2);border-top-color:#0067c0;animation:bootspin 0.8s linear infinite;"></div>
+      </div>
+    </div>
+    <style>#boot-shell{z-index:9999;transition:opacity .3s}@keyframes bootspin{to{transform:rotate(360deg)}}</style>
     <noscript>
       <div style="font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: #0067c0; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
         <div style="background: #f3f3f3; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 24px 32px; max-width: 420px; text-align: center; box-shadow: 0 16px 48px rgba(0,0,0,0.28);">
