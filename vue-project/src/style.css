@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============ Win11 全局基础 ============ */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI Variable Text', 'Segoe UI', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-color: #0067c0;
+  margin: 0;
+  overflow: hidden;
+}
+
+::selection {
+  background: #0067c0;
+  color: #ffffff;
+}
+
+/* Win11 滚动条（细圆角，悬停加深） */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #c6c6c6;
+  border: 3px solid transparent;
+  border-radius: 8px;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ============ Win11 主题工具类 ============ */
+/* 浅色亚克力面板（开始菜单/右键菜单/弹窗通用） */
+.win11-acrylic {
+  background: rgba(243, 243, 243, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.19), 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+.win11-menu-item {
+  padding: 7px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.win11-menu-item:hover { background: rgba(0, 0, 0, 0.055); }
+.win11-menu-item:active { background: rgba(0, 0, 0, 0.03); color: #5d5d5d; }
+
+/* Win11 按钮 */
+.win11-btn {
+  min-width: 76px;
+  padding: 5px 14px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fdfdfd;
+  color: #1a1a1a;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  font-family: inherit;
+}
+.win11-btn:hover { background: #f6f6f6; }
+.win11-btn:active { background: #f0f0f0; color: #5d5d5d; }
+.win11-btn-accent {
+  background: #0067c0;
+  color: #fff;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+.win11-btn-accent:hover { background: #1975c5; }
+.win11-btn-accent:active { background: #005ba1; color: rgba(255, 255, 255, 0.8); }
+
+/* 兼容旧类名（部分视图仍在用），映射到 Win11 观感 */
+.win95-raised {
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+.win95-sunken {
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fff;
+}
+.win-btn:active {
+  filter: brightness(0.94);
+}
+
+/* Prism 代码块贴合 Win11 内容区 */
+pre[class*="language-"] {
+  background: #ffffff !important;
+  border: 1px solid #e5e5e5 !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  padding: 12px !important;
+  margin: 0 0 1em 0 !important;
+}
+code[class*="language-"] {
+  font-family: 'Cascadia Code', 'Consolas', 'Courier New', monospace !important;
+  font-size: 13px !important;
+}
+
+/* 桌面图标文字阴影（Win11 更柔和） */
+.desktop-icon {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+}
+
+/* 焦点样式（Win11 蓝色细边） */
+:focus-visible {
+  outline: 2px solid #0067c0;
+  outline-offset: 1px;
+  border-radius: 2px;
+}
