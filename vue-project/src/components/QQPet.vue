@@ -1166,17 +1166,26 @@ onMounted(() => {
   if (isFloating()) showBubble();
   schedule(1800);
   vitalsTimer = setInterval(updateVitals, 20000);
-  // 核心动画预热（仅玩法说明中易触发的 ~20 个，间隔 600ms 排队下载到 HTTP 缓存）；
-  // 冷门随机小动作（80+ 个）保持懒加载——触发时才下载，下载完成前待机动画继续播
+  // 核心动画预热（仅玩法说明中易触发的 ~20 个）：必须等【懒加载路由 chunk 完全
+  // 安定后】再开始——预热 fetch 与路由 chunk 抢带宽时，会把导航拖到几十秒甚至饿死
+  // （vue-router 挂起期间页面所有导航都僵死）。触发条件：窗口 load + 6s 空闲。
   const warmup = (): void => {
     CORE_ANIMS.forEach((name, i) => {
-      setTimeout(() => preloadAnim(name), i * 600);
+      setTimeout(() => preloadAnim(name), i * 1200);
     });
   };
-  if ('requestIdleCallback' in window) {
-    (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(warmup);
+  const startWarmupWhenReady = (): void => {
+    if ('requestIdleCallback' in window) {
+      (window as unknown as { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => void })
+        .requestIdleCallback(warmup, { timeout: 20000 });
+    } else {
+      setTimeout(warmup, 12000);
+    }
+  };
+  if (document.readyState === 'complete') {
+    setTimeout(startWarmupWhenReady, 6000);
   } else {
-    setTimeout(warmup, 4000);
+    window.addEventListener('load', () => setTimeout(startWarmupWhenReady, 6000), { once: true });
   }
   try {
     if (!localStorage.getItem('pet-hint-shown')) {
