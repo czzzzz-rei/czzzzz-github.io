@@ -58,45 +58,45 @@ function onInput() {
   >
     <div class="flex flex-col h-full min-h-0 gap-0">
       <!-- Toolbar -->
-      <div class="flex items-center gap-[6px] px-[4px] py-[3px] bg-[#c0c0c0] border-b-2 border-[#808080] shrink-0 flex-wrap">
-        <span class="text-[11px] font-bold text-black shrink-0">字号:</span>
+      <div class="flex items-center gap-2 px-2 py-1.5 border-b border-black/5 shrink-0 flex-wrap">
+        <span class="text-[11px] text-[#5d5d5d] shrink-0">字号:</span>
         <select
           v-model.number="fontSize"
-          class="text-[11px] px-[4px] py-[1px] bg-white border-2 border-t-[#808080] border-l-[#808080] border-b-[#ffffff] border-r-[#ffffff] outline-none text-black"
-          style="font-family: 'MS Sans Serif', 'Microsoft YaHei', sans-serif;"
+          class="text-[12px] px-1.5 py-0.5 bg-white border border-black/15 rounded outline-none text-[#1a1a1a] cursor-pointer"
+          style="font-family: 'Segoe UI', 'Microsoft YaHei UI', sans-serif;"
         >
           <option v-for="s in [10, 12, 14, 16, 18, 20, 24]" :key="s" :value="s">{{ s }}px</option>
         </select>
         <button
           @click="handleNew"
-          class="text-[11px] font-bold px-[10px] py-[2px] bg-[#c0c0c0] text-black border-none shadow-[inset_-1px_-1px_#0a0a0a,inset_1px_1px_#ffffff,inset_-2px_-2px_#808080,inset_2px_2px_#dfdfdf] active:shadow-[inset_-1px_-1px_#ffffff,inset_1px_1px_#0a0a0a] cursor-pointer"
-          style="font-family: 'MS Sans Serif', 'Microsoft YaHei', sans-serif;"
+          class="text-[12px] px-3 py-1 rounded-md border border-black/10 bg-[#fdfdfd] text-[#1a1a1a] hover:bg-[#f6f6f6] active:bg-[#f0f0f0] transition-colors cursor-pointer"
+          style="font-family: 'Segoe UI', 'Microsoft YaHei UI', sans-serif;"
         >
           新建
         </button>
         <button
           @click="handleSave"
-          class="text-[11px] font-bold px-[10px] py-[2px] bg-[#c0c0c0] text-black border-none shadow-[inset_-1px_-1px_#0a0a0a,inset_1px_1px_#ffffff,inset_-2px_-2px_#808080,inset_2px_2px_#dfdfdf] active:shadow-[inset_-1px_-1px_#ffffff,inset_1px_1px_#0a0a0a] cursor-pointer"
-          style="font-family: 'MS Sans Serif', 'Microsoft YaHei', sans-serif;"
+          class="text-[12px] px-3 py-1 rounded-md border border-black/10 bg-[#fdfdfd] text-[#1a1a1a] hover:bg-[#f6f6f6] active:bg-[#f0f0f0] transition-colors cursor-pointer"
+          style="font-family: 'Segoe UI', 'Microsoft YaHei UI', sans-serif;"
         >
           保存
         </button>
-        <span v-if="!saved" class="text-[10px] text-red-600">● 未保存</span>
-        <span v-else class="text-[10px] text-gray-500">已保存</span>
+        <span v-if="!saved" class="text-[10px] text-[#c42b1c]">● 未保存</span>
+        <span v-else class="text-[10px] text-[#0a7a0a]">已保存</span>
       </div>
 
       <!-- Textarea -->
       <textarea
         v-model="textContent"
         @input="onInput"
-        class="flex-1 w-full resize-none outline-none p-[6px] bg-white text-black min-h-0 border-0"
+        class="flex-1 w-full resize-none outline-none p-2 bg-white text-[#1a1a1a] min-h-0 border-0"
         :style="textareaStyle"
         placeholder="在此输入..."
         spellcheck="false"
       ></textarea>
 
       <!-- Status -->
-      <div class="flex px-[4px] py-[1px] text-[10px] text-black border-t-2 border-t-[#808080] border-b border-b-[#ffffff] bg-[#c0c0c0] shrink-0 select-none gap-[12px]">
+      <div class="flex px-2 py-1 text-[10px] text-[#8a8a8a] border-t border-black/5 shrink-0 select-none gap-3">
         <span>字符: {{ charCount }}</span>
         <span>行数: {{ lineCount }}</span>
       </div>

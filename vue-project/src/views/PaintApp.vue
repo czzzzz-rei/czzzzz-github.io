@@ -230,32 +230,32 @@ function clearCanvas() {
   >
     <div class="flex flex-col h-full min-h-0 gap-0">
       <!-- Toolbar -->
-      <div class="flex items-center gap-[4px] px-[4px] py-[3px] bg-[#c0c0c0] border-b-2 border-[#808080] shrink-0 flex-wrap">
-        <span class="text-[11px] font-bold text-black mr-[4px] shrink-0">工具:</span>
+      <div class="flex items-center gap-1.5 px-2 py-1.5 border-b border-black/5 shrink-0 flex-wrap">
+        <span class="text-[11px] text-[#5d5d5d] mr-1 shrink-0">工具:</span>
         <button
           v-for="t in toolDefs"
           :key="t.id"
           @click="currentTool = t.id"
-          class="w-[30px] h-[28px] flex items-center justify-center text-[14px] border-none cursor-pointer shrink-0 bg-[#c0c0c0]"
+          class="w-[30px] h-[28px] flex items-center justify-center text-[14px] rounded-md border transition-colors cursor-pointer shrink-0"
           :class="currentTool === t.id
-            ? 'shadow-[inset_-1px_-1px_#ffffff,inset_1px_1px_#0a0a0a]'
-            : 'shadow-[inset_-1px_-1px_#0a0a0a,inset_1px_1px_#ffffff,inset_-2px_-2px_#808080,inset_2px_2px_#dfdfdf] active:shadow-[inset_-1px_-1px_#ffffff,inset_1px_1px_#0a0a0a]'"
+            ? 'bg-[#e8f1fb] border-[#0067c0] text-[#0067c0]'
+            : 'bg-[#fdfdfd] border-black/10 text-[#1a1a1a] hover:bg-[#f6f6f6]'"
           :title="t.label"
         >
           {{ t.icon }}
         </button>
-        <div class="w-[3px] h-[22px] bg-[#808080] border-r border-[#ffffff] shrink-0 mx-[4px]"></div>
+        <div class="w-[1px] h-5 bg-black/10 shrink-0 mx-1"></div>
         <button
           @click="clearCanvas"
-          class="text-[11px] font-bold px-[8px] py-[2px] bg-[#c0c0c0] text-black border-none shadow-[inset_-1px_-1px_#0a0a0a,inset_1px_1px_#ffffff,inset_-2px_-2px_#808080,inset_2px_2px_#dfdfdf] active:shadow-[inset_-1px_-1px_#ffffff,inset_1px_1px_#0a0a0a] cursor-pointer shrink-0"
-          style="font-family: 'MS Sans Serif', 'Microsoft YaHei', sans-serif;"
+          class="text-[12px] px-3 py-1 rounded-md border border-black/10 bg-[#fdfdfd] text-[#1a1a1a] hover:bg-[#f6f6f6] active:bg-[#f0f0f0] transition-colors cursor-pointer shrink-0"
+          style="font-family: 'Segoe UI', 'Microsoft YaHei UI', sans-serif;"
         >
           清空
         </button>
       </div>
 
       <!-- Canvas Area -->
-      <div ref="containerRef" class="flex-1 min-h-0 overflow-hidden" style="touch-action: none;">
+      <div ref="containerRef" class="flex-1 min-h-0 overflow-hidden bg-white" style="touch-action: none;">
         <canvas
           ref="canvasRef"
           class="block cursor-crosshair"
@@ -268,19 +268,19 @@ function clearCanvas() {
       </div>
 
       <!-- Color Palette -->
-      <div class="flex items-center gap-[4px] px-[4px] py-[3px] bg-[#c0c0c0] border-t-2 border-t-[#ffffff] shrink-0 flex-wrap">
-        <span class="text-[10px] font-bold text-black mr-[2px] shrink-0">颜色:</span>
-        <div class="w-[24px] h-[24px] shrink-0 shadow-[inset_-1px_-1px_#ffffff,inset_1px_1px_#0a0a0a]" :style="{ backgroundColor: currentColor }"></div>
-        <div class="w-[2px] h-[20px] bg-[#808080] shrink-0 mx-[2px]"></div>
-        <div class="flex gap-[2px] flex-wrap">
+      <div class="flex items-center gap-1.5 px-2 py-1.5 border-t border-black/5 shrink-0 flex-wrap">
+        <span class="text-[10px] text-[#5d5d5d] mr-1 shrink-0">颜色:</span>
+        <div class="w-6 h-6 shrink-0 rounded-md border border-black/15 shadow-[0_1px_2px_rgba(0,0,0,0.08)]" :style="{ backgroundColor: currentColor }"></div>
+        <div class="w-[1px] h-5 bg-black/10 shrink-0 mx-1"></div>
+        <div class="flex gap-1 flex-wrap">
           <button
             v-for="c in palette"
             :key="c"
             @click="currentColor = c"
-            class="w-[18px] h-[18px] border-none cursor-pointer shrink-0"
+            class="w-[18px] h-[18px] rounded-[4px] cursor-pointer shrink-0 transition-transform"
             :class="currentColor === c
-              ? 'shadow-[inset_-1px_-1px_#ffffff,inset_1px_1px_#0a0a0a] outline outline-1 outline-black outline-offset-[-1px]'
-              : 'shadow-[inset_-1px_-1px_#0a0a0a,inset_1px_1px_#ffffff]'"
+              ? 'ring-2 ring-[#0067c0] ring-offset-1 scale-110'
+              : 'ring-1 ring-black/15 hover:scale-110'"
             :style="{ backgroundColor: c }"
           ></button>
         </div>

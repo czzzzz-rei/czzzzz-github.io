@@ -229,33 +229,33 @@ const goNote = (id?: string) => {
         <article v-else class="note-article" v-html="noteContent"></article>
 
         <!-- 上一篇 / 下一篇 -->
-        <footer v-if="!isLoading" class="mt-10 pt-3 border-t-2 border-t-[#808080]">
+        <footer v-if="!isLoading" class="mt-10 pt-3 border-t border-black/10">
           <div class="flex flex-col sm:flex-row gap-2">
             <button
               :disabled="!prevNote"
               @click="goNote(prevNote?.id)"
-              class="flex-1 min-w-0 text-left px-3 py-1.5 bg-[#c0c0c0] text-xs text-black shadow-win95-outset active:shadow-win95-inset win-btn cursor-pointer disabled:opacity-50 disabled:cursor-default"
+              class="flex-1 min-w-0 text-left px-3 py-2 text-xs rounded-md border border-black/10 bg-[#fdfdfd] shadow-[0_1px_2px_rgba(0,0,0,0.06)] hover:bg-[#f6f6f6] active:bg-[#f0f0f0] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
               :title="prevNote ? prevNote.title : '已经是第一篇'"
             >
-              <span class="text-[11px] text-gray-700 block">← 上一篇</span>
-              <span class="block truncate font-bold">{{ prevNote ? prevNote.title : '没有更多文章' }}</span>
+              <span class="text-[11px] text-[#0067c0] block">← 上一篇</span>
+              <span class="block truncate font-semibold text-[#1a1a1a]">{{ prevNote ? prevNote.title : '没有更多文章' }}</span>
             </button>
             <button
               :disabled="!nextNote"
               @click="goNote(nextNote?.id)"
-              class="flex-1 min-w-0 text-right px-3 py-1.5 bg-[#c0c0c0] text-xs text-black shadow-win95-outset active:shadow-win95-inset win-btn cursor-pointer disabled:opacity-50 disabled:cursor-default"
+              class="flex-1 min-w-0 text-right px-3 py-2 text-xs rounded-md border border-black/10 bg-[#fdfdfd] shadow-[0_1px_2px_rgba(0,0,0,0.06)] hover:bg-[#f6f6f6] active:bg-[#f0f0f0] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
               :title="nextNote ? nextNote.title : '已经是最后一篇'"
             >
-              <span class="text-[11px] text-gray-700 block">下一篇 →</span>
-              <span class="block truncate font-bold">{{ nextNote ? nextNote.title : '没有更多文章' }}</span>
+              <span class="text-[11px] text-[#0067c0] block">下一篇 →</span>
+              <span class="block truncate font-semibold text-[#1a1a1a]">{{ nextNote ? nextNote.title : '没有更多文章' }}</span>
             </button>
           </div>
           <div class="mt-3 text-center">
             <button
               @click="router.push('/all-notes')"
-              class="px-4 py-1 bg-[#c0c0c0] text-xs text-black shadow-win95-outset active:shadow-win95-inset win-btn cursor-pointer"
+              class="px-4 py-1.5 text-xs rounded-md border border-black/10 bg-[#fdfdfd] shadow-[0_1px_2px_rgba(0,0,0,0.06)] hover:bg-[#f6f6f6] active:bg-[#f0f0f0] transition-colors cursor-pointer text-[#1a1a1a]"
             >
-              <i class="fa fa-arrow-up mr-1"></i>返回我的文档
+              <i class="fa fa-arrow-up mr-1 text-[#0067c0]"></i>返回我的文档
             </button>
           </div>
         </footer>
@@ -337,16 +337,15 @@ const goNote = (id?: string) => {
   text-decoration: underline;
 }
 .note-article a:hover {
-  background: #000080;
-  color: #ffffff;
-  text-decoration: none;
+  color: #0067c0;
+  text-decoration: underline;
 }
 .note-article code {
-  font-family: 'Courier New', Consolas, monospace;
+  font-family: 'Cascadia Code', Consolas, monospace;
   font-size: 0.92em;
-  background: #ffffff;
-  border: 1px solid;
-  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  background: #f6f6f6;
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
   padding: 0 4px;
 }
 .note-article pre {
@@ -366,56 +365,55 @@ const goNote = (id?: string) => {
   font-size: 12px;
 }
 .note-article th {
-  background: #dfdfdf;
-  border: 1px solid #808080;
+  background: #f0f6fc;
+  border: 1px solid #e0e0e0;
   padding: 6px 8px;
   text-align: left;
-  font-weight: bold;
+  font-weight: 600;
   vertical-align: top;
 }
 .note-article td {
-  border: 1px solid #a0a0a0;
+  border: 1px solid #e5e5e5;
   padding: 6px 8px;
   text-align: left;
   vertical-align: top;
 }
 .note-article tbody tr:nth-child(even) td {
-  background: #f6f6f6;
+  background: #fafafa;
 }
 .note-article blockquote {
   margin: 0 0 1em;
   padding: 8px 12px;
-  background: #f4f4f4;
-  border-left: 4px solid #808080;
+  background: #f6f9fc;
+  border-left: 3px solid #0067c0;
+  border-radius: 0 4px 4px 0;
 }
 .note-article hr {
   border: none;
-  border-top: 1px solid #808080;
-  border-bottom: 1px solid #ffffff;
+  border-top: 1px solid #e5e5e5;
   margin: 1.5em 0;
 }
 
 /* ============ 阅读体验：复制按钮 / 目录 / 进度条（Teleport 到 body，全局样式） ============ */
-/* 顶部阅读进度条：Win98 分段蓝色块 */
+/* 顶部阅读进度条：Win11 蓝色细条 */
 .read-progress {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 7px;
-  background: #ffffff;
-  border-bottom: 1px solid #808080;
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.25);
+  height: 4px;
+  background: transparent;
   z-index: 45;
   pointer-events: none;
 }
 .read-progress-fill {
   height: 100%;
-  background: repeating-linear-gradient(90deg, #000080 0 9px, #c0c0c0 9px 11px);
+  background: linear-gradient(90deg, #0067c0, #3d8fd6);
+  border-radius: 0 2px 2px 0;
   transition: width 0.12s linear;
 }
 
-/* 悬浮目录：右侧迷你 Win98 面板 */
+/* 悬浮目录：右侧迷你 Win11 面板 */
 .read-toc {
   position: fixed;
   top: 66px;
@@ -424,12 +422,13 @@ const goNote = (id?: string) => {
   max-height: 64vh;
   display: flex;
   flex-direction: column;
-  background: #c0c0c0;
-  border: 2px solid;
-  border-color: #ffffff #0a0a0a #0a0a0a #ffffff;
-  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4);
+  background: rgba(243, 243, 243, 0.97);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.19), 0 2px 6px rgba(0, 0, 0, 0.12);
   z-index: 45;
-  font-family: 'MS Sans Serif', Tahoma, 'Microsoft YaHei', sans-serif;
+  font-family: 'Segoe UI', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  overflow: hidden;
 }
 .read-toc.collapsed { max-height: none; }
 .read-toc-head {
@@ -438,33 +437,39 @@ const goNote = (id?: string) => {
   gap: 5px;
   width: 100%;
   border: none;
-  background: #c0c0c0;
-  padding: 4px 7px;
-  font-size: 11px;
-  font-weight: bold;
-  color: #000080;
+  background: transparent;
+  padding: 9px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a1a1a;
   cursor: pointer;
   text-align: left;
-  border-bottom: 1px solid #808080;
-  box-shadow: inset 0 1px 0 #ffffff;
+  border-bottom: 1px solid #e5e5e5;
 }
-.read-toc.collapsed .read-toc-head { border-bottom-color: transparent; box-shadow: none; }
+.read-toc-head:hover { background: rgba(0, 0, 0, 0.03); }
+.read-toc-head i { color: #0067c0; }
+.read-toc.collapsed .read-toc-head { border-bottom-color: transparent; }
 .read-toc-head .read-toc-count {
   margin-left: auto;
-  font-weight: normal;
-  color: #555;
+  font-weight: 600;
+  color: #fff;
   font-size: 10px;
+  background: #0067c0;
+  border-radius: 9px;
+  padding: 0 6px;
+  min-width: 18px;
+  text-align: center;
 }
-.read-toc-head .toggle { color: #555; transition: transform 0.15s; }
+.read-toc-head .toggle { color: #8a8a8a; transition: transform 0.15s; }
 .read-toc.collapsed .toggle { transform: rotate(180deg); }
 .read-toc ul {
   list-style: none;
-  margin: 3px;
+  margin: 6px;
   padding: 3px;
   overflow-y: auto;
   background: #fff;
-  border: 1px solid;
-  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
 }
 .read-toc li button {
   display: block;
@@ -475,17 +480,18 @@ const goNote = (id?: string) => {
   font-size: 11px;
   color: #1a1a1a;
   padding: 3px 6px;
+  border-radius: 4px;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.read-toc li.sub button { padding-left: 20px; color: #555; }
-.read-toc li button:hover { background: #000080; color: #fff; }
+.read-toc li.sub button { padding-left: 20px; color: #5d5d5d; }
+.read-toc li button:hover { background: #e8f1fb; color: #0067c0; }
 .read-toc li.active button {
-  background: #000080;
-  color: #fff;
-  font-weight: bold;
+  background: #e8f1fb;
+  color: #0067c0;
+  font-weight: 600;
 }
 @media (max-width: 899px) {
   .read-toc { display: none; }
@@ -501,25 +507,25 @@ const goNote = (id?: string) => {
   position: absolute;
   top: 5px;
   right: 5px;
-  border: 1px solid;
-  border-color: #ffffff #0a0a0a #0a0a0a #ffffff;
-  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #ffffff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
-  background: #c0c0c0;
-  color: #000;
-  font: 10px 'MS Sans Serif', Tahoma, 'Microsoft YaHei', sans-serif;
-  padding: 2px 7px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  background: #fdfdfd;
+  color: #1a1a1a;
+  font: 11px 'Segoe UI', 'Microsoft YaHei UI', sans-serif;
+  padding: 2px 8px;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.12s;
+  transition: opacity 0.12s, background 0.1s;
   z-index: 2;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
-.code-wrap:hover .code-copy,
+.code-copy:hover { background: #f6f6f6; }
 .code-copy:focus-visible { opacity: 1; }
 .code-copy:active {
-  border-color: #0a0a0a #ffffff #ffffff #0a0a0a;
-  box-shadow: inset -1px -1px #ffffff, inset 1px 1px #0a0a0a;
+  background: #f0f0f0;
+  color: #5d5d5d;
 }
-.code-copy.ok { color: #008000; font-weight: bold; }
+.code-copy.ok { color: #0a7a0a; font-weight: 600; }
 @media (hover: none) {
   .code-copy { opacity: 1; }
 }

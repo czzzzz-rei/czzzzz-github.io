@@ -226,25 +226,23 @@ const buttons: CalcBtn[][] = [
     :isActive="true"
     @close="router.push('/')"
   >
-    <div class="flex flex-col gap-[4px] h-full max-w-[300px] mx-auto select-none outline-none" tabindex="0">
+    <div class="flex flex-col gap-2 h-full max-w-[300px] mx-auto select-none outline-none" tabindex="0">
       <!-- Display -->
-      <div class="bg-white shadow-win95-inset px-[8px] py-[4px] flex flex-col items-end justify-end min-h-[56px] border-2 border-[#808080]">
-        <div class="text-[10px] text-gray-500 h-[14px] font-mono">{{ expression }}</div>
-        <div class="text-[26px] font-bold font-mono tracking-tight leading-none truncate w-full text-right text-black">{{ display }}</div>
+      <div class="bg-white border border-[#e0e0e0] rounded-md px-3 py-2 flex flex-col items-end justify-end min-h-[60px]">
+        <div class="text-[10px] text-[#8a8a8a] h-[14px] font-mono">{{ expression }}</div>
+        <div class="text-[28px] font-semibold text-[#1a1a1a] tracking-tight leading-none truncate w-full text-right">{{ display }}</div>
       </div>
 
       <!-- Buttons -->
-      <div class="flex flex-col gap-[3px]">
-        <div v-for="(row, ri) in buttons" :key="ri" class="flex gap-[3px]">
+      <div class="flex flex-col gap-1.5">
+        <div v-for="(row, ri) in buttons" :key="ri" class="flex gap-1.5">
           <button
             v-for="btn in row"
             :key="btn.label"
             @click="btn.action"
-            class="flex-1 h-[42px] flex items-center justify-center text-[14px] font-bold border-none cursor-pointer select-none"
-            :class="btn.accent
-              ? 'bg-[#c0c0c0] text-black shadow-[inset_-1px_-1px_#0a0a0a,inset_1px_1px_#ffffff,inset_-2px_-2px_#808080,inset_2px_2px_#dfdfdf] active:shadow-[inset_-1px_-1px_#ffffff,inset_1px_1px_#0a0a0a]'
-              : 'bg-[#c0c0c0] text-black shadow-[inset_-1px_-1px_#0a0a0a,inset_1px_1px_#ffffff,inset_-2px_-2px_#808080,inset_2px_2px_#dfdfdf] active:shadow-[inset_-1px_-1px_#ffffff,inset_1px_1px_#0a0a0a]'"
-            style="font-family: 'MS Sans Serif', 'Microsoft YaHei', sans-serif;"
+            class="flex-1 h-[44px] flex items-center justify-center text-[15px] font-semibold rounded-md border border-black/10 bg-[#fdfdfd] text-[#1a1a1a] shadow-[0_1px_2px_rgba(0,0,0,0.06)] hover:bg-[#f6f6f6] active:bg-[#f0f0f0] active:text-[#5d5d5d] transition-colors cursor-pointer select-none"
+            :class="btn.accent ? '!bg-[#0067c0] !text-white !border-[#005ba1] hover:!bg-[#1975c5] active:!bg-[#005ba1]' : ''"
+            style="font-family: 'Segoe UI', 'Microsoft YaHei UI', sans-serif;"
           >
             {{ btn.label }}
           </button>
@@ -252,7 +250,7 @@ const buttons: CalcBtn[][] = [
       </div>
 
       <!-- Keyboard hint -->
-      <div class="text-[9px] text-gray-500 text-center mt-auto pt-2">
+      <div class="text-[9px] text-[#8a8a8a] text-center mt-auto pt-2">
         支持键盘输入 · Esc=清除 · Enter=等于
       </div>
     </div>

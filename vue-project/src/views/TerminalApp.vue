@@ -700,7 +700,8 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.win-terminal::-webkit-scrollbar { width: 14px; }
-.win-terminal::-webkit-scrollbar-thumb { background: #c0c0c0; border: 2px solid; border-color: #fff #808080 #808080 #fff; }
+.win-terminal::-webkit-scrollbar { width: 10px; }
+.win-terminal::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 5px; border: 2px solid transparent; background-clip: content-box; }
+.win-terminal::-webkit-scrollbar-thumb:hover { background: #555; border: 2px solid transparent; background-clip: content-box; }
 .win-terminal::-webkit-scrollbar-track { background: transparent; }
 </style>

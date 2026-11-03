@@ -158,12 +158,13 @@ function toggle(): void {
   width: min(344px, calc(100vw - 20px));
   display: flex;
   flex-direction: column;
-  background: #c0c0c0;
-  border: 2px solid;
-  border-color: #ffffff #0a0a0a #0a0a0a #ffffff;
-  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4);
+  background: rgba(243, 243, 243, 0.97);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.19), 0 2px 6px rgba(0, 0, 0, 0.12);
   z-index: 46;                /* 展开后盖在目录之上，避免互相顶住 */
-  font-family: 'MS Sans Serif', Tahoma, 'Microsoft YaHei', sans-serif;
+  font-family: 'Segoe UI', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  overflow: hidden;
 }
 .read-comments-head {
   display: flex;
@@ -171,31 +172,31 @@ function toggle(): void {
   gap: 6px;
   width: 100%;
   border: none;
-  background: #c0c0c0;
-  padding: 4px 8px;
-  font-size: 11px;
-  font-weight: bold;
-  color: #000080;
+  background: transparent;
+  padding: 9px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a1a1a;
   cursor: pointer;
   text-align: left;
-  border-bottom: 1px solid #808080;
-  box-shadow: inset 0 1px 0 #ffffff;
+  border-bottom: 1px solid #e5e5e5;
 }
-.read-comments.open .read-comments-head { border-bottom-color: #808080; }
+.read-comments-head:hover { background: rgba(0, 0, 0, 0.03); }
+.read-comments-head i { color: #0067c0; }
+.read-comments.open .read-comments-head { border-bottom-color: #e5e5e5; }
 .read-comments-head .read-comments-count {
-  min-width: 16px;
-  padding: 0 4px;
-  font-weight: normal;
-  color: #555;
+  min-width: 18px;
+  padding: 0 6px;
+  font-weight: 600;
+  color: #fff;
   font-size: 10px;
-  background: #fff;
-  border: 1px solid;
-  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  background: #0067c0;
+  border-radius: 9px;
   text-align: center;
 }
 .read-comments-head .toggle {
   margin-left: auto;
-  color: #555;
+  color: #8a8a8a;
   font-size: 12px;
   transition: transform 0.15s;
 }
@@ -204,17 +205,17 @@ function toggle(): void {
   display: flex;
   flex-direction: column;
   max-height: min(52vh, 470px);
-  padding: 4px;
+  padding: 8px;
 }
 .read-comments-tip {
-  margin: 0 0 4px;
-  padding: 4px 6px;
+  margin: 0 0 6px;
+  padding: 6px 8px;
   font-size: 10px;
   line-height: 1.5;
-  color: #555;
-  background: #fff;
-  border: 1px solid;
-  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  color: #5d5d5d;
+  background: #f6f6f6;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
 }
 .read-comments-tip i { margin-right: 3px; }
 .read-comments-fail {
@@ -222,33 +223,33 @@ function toggle(): void {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin: 0 0 4px;
-  padding: 5px 7px;
+  margin: 0 0 6px;
+  padding: 6px 8px;
   font-size: 10px;
   line-height: 1.5;
   color: #a00;
-  background: #fff;
-  border: 1px solid;
-  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  background: #fdf3f3;
+  border: 1px solid #f0d0d0;
+  border-radius: 4px;
 }
 .read-comments-fail button {
   flex-shrink: 0;
-  padding: 2px 10px;
+  padding: 3px 12px;
   font-size: 10px;
-  font-weight: bold;
-  background: #c0c0c0;
-  color: #000;
-  border: none;
+  background: #fdfdfd;
+  color: #1a1a1a;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
   cursor: pointer;
-  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #ffffff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
   font-family: inherit;
 }
-.read-comments-fail button:active { box-shadow: inset -1px -1px #ffffff, inset 1px 1px #0a0a0a; }
+.read-comments-fail button:hover { background: #f6f6f6; }
 .read-comments-box {
   overflow-y: auto;
   background: #fff;
-  border: 1px solid;
-  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
   min-height: 120px;
 }
 /* giscus iframe 撑满容器宽度 */

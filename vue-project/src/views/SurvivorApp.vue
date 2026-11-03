@@ -86,7 +86,7 @@ const onPointerDown = (e: PointerEvent) => {
     <div class="relative flex flex-col items-center justify-center gap-2 w-full min-h-0">
       <canvas
         ref="canvasRef"
-        class="shadow-win95-inset outline-none block shrink-0"
+        class="border border-black/10 rounded-md outline-none block shrink-0"
         tabindex="0"
         style="touch-action: none;"
         @pointermove="onPointerMove"
@@ -95,12 +95,12 @@ const onPointerDown = (e: PointerEvent) => {
 
       <div class="gm-console">
         <div class="gm-title">控制台</div>
-        <button class="gm-btn" :style="{ backgroundColor: paused ? '#b8d8f8' : '#c0c0c0' }" @click="onPause">
+        <button class="gm-btn" :style="{ backgroundColor: paused ? '#e8f1fb' : '#fdfdfd' }" @click="onPause">
           <span class="gm-ico">{{ paused ? '▶' : '⏸' }}</span>
           <span class="gm-label">{{ paused ? '继续游戏' : '暂停游戏' }}</span>
           <span class="gm-key">P</span>
         </button>
-        <button class="gm-btn" :style="{ backgroundColor: cheatInv ? '#f4b8f4' : '#c0c0c0' }" @click="onCheatOpen">
+        <button class="gm-btn" :style="{ backgroundColor: cheatInv ? '#f6ecfb' : '#fdfdfd' }" @click="onCheatOpen">
           <span class="gm-ico">⚙</span>
           <span class="gm-label">作弊控制台</span>
           <span class="gm-key">I</span>
@@ -115,36 +115,36 @@ const onPointerDown = (e: PointerEvent) => {
         v-if="cheatOpen"
         class="absolute inset-0 z-20 flex items-center justify-center p-3"
       >
-        <div class="w-full max-w-[460px] bg-[#c0c0c0] border-2 border-t-[#ffffff] border-l-[#ffffff] border-r-[#0a0a0a] border-b-[#0a0a0a] shadow-[6px_6px_16px_rgba(0,0,0,0.5)]">
-          <div class="h-[26px] bg-[linear-gradient(90deg,#800080,#c060c0)] flex items-center px-2">
-            <i class="fa fa-magic text-white text-[11px] mr-2"></i>
-            <span class="text-white text-[12px] font-bold flex-1">作弊控制台（游戏已暂停）</span>
-            <button @click="onCheatClose" class="text-white text-[12px] font-bold px-1 cursor-pointer">✕</button>
+        <div class="w-full max-w-[460px] bg-[#f3f3f3] border border-black/10 rounded-lg shadow-[0_16px_48px_rgba(0,0,0,0.28)] overflow-hidden">
+          <div class="h-10 flex items-center px-4 border-b border-black/[0.06]">
+            <i class="fa fa-magic text-[#8a3fd1] text-[13px] mr-2"></i>
+            <span class="text-[#1a1a1a] text-[13px] font-semibold flex-1">作弊控制台（游戏已暂停）</span>
+            <button @click="onCheatClose" class="w-8 h-8 rounded text-[#1a1a1a] text-[12px] font-bold hover:bg-black/[0.06] cursor-pointer">✕</button>
           </div>
           <div class="p-3 grid grid-cols-2 gap-2 text-[12px]">
-            <button @click="cheat('inv')" class="py-1.5 bg-[#c0c0c0] border-2 border-t-[#fff] border-l-[#fff] border-r-[#808080] border-b-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-r-[#fff] active:border-b-[#fff] cursor-pointer font-bold" :style="{ backgroundColor: cheatInv ? '#ff88ff' : '#c0c0c0' }">
+            <button @click="cheat('inv')" class="py-2 rounded-md border transition-colors cursor-pointer font-semibold" :class="cheatInv ? 'bg-[#f6ecfb] border-[#8a3fd1] text-[#8a3fd1]' : 'bg-[#fdfdfd] border-black/10 text-[#1a1a1a] hover:bg-[#f6f6f6]'">
               ★ 无敌模式：{{ cheatInv ? '开' : '关' }}
             </button>
-            <button @click="cheat('heal')" class="py-1.5 bg-[#c0c0c0] border-2 border-t-[#fff] border-l-[#fff] border-r-[#808080] border-b-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-r-[#fff] active:border-b-[#fff] cursor-pointer">
+            <button @click="cheat('heal')" class="py-2 rounded-md border border-black/10 bg-[#fdfdfd] text-[#1a1a1a] hover:bg-[#f6f6f6] transition-colors cursor-pointer">
               ❤ 回满生命
             </button>
-            <button @click="cheat('xp')" class="py-1.5 bg-[#c0c0c0] border-2 border-t-[#fff] border-l-[#fff] border-r-[#808080] border-b-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-r-[#fff] active:border-b-[#fff] cursor-pointer">
+            <button @click="cheat('xp')" class="py-2 rounded-md border border-black/10 bg-[#fdfdfd] text-[#1a1a1a] hover:bg-[#f6f6f6] transition-colors cursor-pointer">
               ⬆ 升 1 级 (弹三选一)
             </button>
-            <button @click="cheat('weapon')" class="py-1.5 bg-[#c0c0c0] border-2 border-t-[#fff] border-l-[#fff] border-r-[#808080] border-b-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-r-[#fff] active:border-b-[#fff] cursor-pointer">
+            <button @click="cheat('weapon')" class="py-2 rounded-md border border-black/10 bg-[#fdfdfd] text-[#1a1a1a] hover:bg-[#f6f6f6] transition-colors cursor-pointer">
               🗡 全部武器 +1 级
             </button>
-            <button @click="cheat('passive')" class="py-1.5 bg-[#c0c0c0] border-2 border-t-[#fff] border-l-[#fff] border-r-[#808080] border-b-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-r-[#fff] active:border-b-[#fff] cursor-pointer">
+            <button @click="cheat('passive')" class="py-2 rounded-md border border-black/10 bg-[#fdfdfd] text-[#1a1a1a] hover:bg-[#f6f6f6] transition-colors cursor-pointer">
               📦 全部被动 +1
             </button>
-            <button @click="cheat('clear')" class="py-1.5 bg-[#c0c0c0] border-2 border-t-[#fff] border-l-[#fff] border-r-[#808080] border-b-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-r-[#fff] active:border-b-[#fff] cursor-pointer">
+            <button @click="cheat('clear')" class="py-2 rounded-md border border-black/10 bg-[#fdfdfd] text-[#1a1a1a] hover:bg-[#f6f6f6] transition-colors cursor-pointer">
               🗑 回收站清屏
             </button>
-            <button @click="cheat('time')" class="py-1.5 bg-[#c0c0c0] border-2 border-t-[#fff] border-l-[#fff] border-r-[#808080] border-b-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-r-[#fff] active:border-b-[#fff] cursor-pointer col-span-2">
+            <button @click="cheat('time')" class="py-2 rounded-md border border-black/10 bg-[#fdfdfd] text-[#1a1a1a] hover:bg-[#f6f6f6] transition-colors cursor-pointer col-span-2">
               ⏩ 时间快进 1 分钟
             </button>
           </div>
-          <div class="px-3 pb-2 text-[10px] text-gray-700">
+          <div class="px-4 pb-3 text-[10px] text-[#8a8a8a]">
             提示：I 键快速开关无敌 · 关闭面板后按 P 继续
           </div>
         </div>
@@ -155,24 +155,24 @@ const onPointerDown = (e: PointerEvent) => {
         v-if="phase === 'levelup'"
         class="absolute inset-0 z-20 flex items-center justify-center p-3"
       >
-        <div class="w-full max-w-[560px] bg-[#c0c0c0] border-2 border-t-[#ffffff] border-l-[#ffffff] border-r-[#0a0a0a] border-b-[#0a0a0a] shadow-[6px_6px_16px_rgba(0,0,0,0.5)]">
-          <div class="h-[26px] bg-[linear-gradient(90deg,#000080,#1084d0)] flex items-center px-2">
-            <i class="fa fa-arrow-up text-white text-[11px] mr-2"></i>
-            <span class="text-white text-[12px] font-bold flex-1">升级！选择一项强化 (按 1/2/3 或点击)</span>
+        <div class="w-full max-w-[560px] bg-[#f3f3f3] border border-black/10 rounded-lg shadow-[0_16px_48px_rgba(0,0,0,0.28)] overflow-hidden">
+          <div class="h-10 flex items-center px-4 border-b border-black/[0.06]">
+            <i class="fa fa-arrow-up text-[#0067c0] text-[13px] mr-2"></i>
+            <span class="text-[#1a1a1a] text-[13px] font-semibold flex-1">升级！选择一项强化 (按 1/2/3 或点击)</span>
           </div>
           <div class="p-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
             <button
               v-for="(c, i) in choices"
               :key="c.kind + String(c.id) + i"
               @click="onPick(i)"
-              class="text-left bg-[#c0c0c0] p-2 border-2 border-t-[#ffffff] border-l-[#ffffff] border-r-[#808080] border-b-[#808080] active:border-t-[#808080] active:border-l-[#808080] active:border-r-[#ffffff] active:border-b-[#ffffff] cursor-pointer"
+              class="text-left bg-white p-3 rounded-md border border-black/10 hover:border-[#0067c0] hover:bg-[#f5faff] active:bg-[#e8f1fb] transition-colors cursor-pointer"
             >
               <div class="flex items-center gap-2 mb-1">
-                <i :class="c.icon" class="text-[#000080] text-base w-5 text-center"></i>
-                <span class="text-[12px] font-bold text-black leading-tight">{{ c.name }}</span>
+                <i :class="c.icon" class="text-[#0067c0] text-base w-5 text-center"></i>
+                <span class="text-[12px] font-semibold text-[#1a1a1a] leading-tight">{{ c.name }}</span>
               </div>
-              <div class="text-[10px] text-[#000080] font-bold mb-1">{{ c.levelText }}</div>
-              <div class="text-[10px] text-gray-800 leading-snug">{{ c.desc }}</div>
+              <div class="text-[10px] text-[#0067c0] font-semibold mb-1">{{ c.levelText }}</div>
+              <div class="text-[10px] text-[#5d5d5d] leading-snug">{{ c.desc }}</div>
             </button>
           </div>
         </div>
@@ -195,46 +195,49 @@ const onPointerDown = (e: PointerEvent) => {
 .gm-title {
   display: none;
   font-size: 10px;
-  font-weight: bold;
-  color: #000080;
+  font-weight: 600;
+  color: #5d5d5d;
   padding: 0 2px 3px;
-  border-bottom: 1px solid #808080;
+  border-bottom: 1px solid #e5e5e5;
 }
 .gm-btn {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
-  border: none;
+  padding: 6px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
   cursor: pointer;
   text-align: left;
-  font-family: 'MS Sans Serif', Tahoma, 'Microsoft YaHei', sans-serif;
-  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #ffffff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
-  transition: filter 0.1s;
+  font-family: 'Segoe UI', 'Microsoft YaHei UI', sans-serif;
+  background: #fdfdfd;
+  color: #1a1a1a;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: background 0.1s;
 }
-.gm-btn:hover { filter: brightness(1.06); }
-.gm-btn:active { box-shadow: inset -1px -1px #ffffff, inset 1px 1px #0a0a0a; }
-.gm-ico { display: none; font-size: 15px; line-height: 1.1; }
-.gm-label { font-size: 11px; font-weight: bold; color: #000; line-height: 1.2; white-space: nowrap; }
+.gm-btn:hover { background: #f6f6f6; }
+.gm-btn:active { background: #f0f0f0; color: #5d5d5d; box-shadow: none; }
+.gm-ico { display: none; font-size: 15px; line-height: 1.1; color: #0067c0; }
+.gm-label { font-size: 11px; font-weight: 600; color: #1a1a1a; line-height: 1.2; white-space: nowrap; }
 .gm-key {
   font-size: 9px;
-  color: #666;
+  color: #5d5d5d;
   line-height: 1.1;
   margin-left: auto;
-  padding: 1px 4px;
-  background: #ffffff;
-  border: 1px solid;
-  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  padding: 1px 5px;
+  background: #f6f6f6;
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
 }
 .gm-hint {
   display: none;
   font-size: 9px;
   line-height: 1.7;
-  color: #666;
+  color: #8a8a8a;
   padding: 6px 2px 0;
   margin-top: 2px;
-  border-top: 1px solid #808080;
+  border-top: 1px solid #e5e5e5;
 }
 @media (min-width: 1024px) {
   .gm-console {

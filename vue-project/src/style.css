@@ -82,19 +82,55 @@ body {
 .win11-btn-accent:hover { background: #1975c5; }
 .win11-btn-accent:active { background: #005ba1; color: rgba(255, 255, 255, 0.8); }
 
-/* 兼容旧类名（部分视图仍在用），映射到 Win11 观感 */
+/* ============ 旧 Win95/98 类名 → Win11 观感映射 ============
+   大量视图仍在用 win95-raised/sunken/win-btn 类与立体浮雕阴影，
+   在全局层统一定义为 Win11 浅色圆角观感，避免逐文件遗漏。 */
 .win95-raised {
   border-radius: 4px;
   border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fdfdfd;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 .win95-sunken {
   border-radius: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
   background: #fff;
 }
+.win-btn {
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fdfdfd;
+  color: #1a1a1a;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: background 0.1s;
+}
+.win-btn:hover { background: #f6f6f6; }
 .win-btn:active {
-  filter: brightness(0.94);
+  background: #f0f0f0;
+  color: #5d5d5d;
+  box-shadow: none !important;
+  padding-top: inherit !important;
+  padding-bottom: inherit !important;
+  padding-left: inherit !important;
+  padding-right: inherit !important;
+}
+.win-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* Tailwind 任意值里高频出现的 Win95 浮雕阴影 → Win11 细边观感 */
+[class*="shadow-[inset_-1px_-1px_#0a0a0a"] {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+  border-radius: 4px;
+}
+[class*="shadow-[inset_-1px_-1px_#ffffff"] {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+}
+[class*="shadow-win95-outset"] {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+[class*="shadow-win95-inset"] {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* Prism 代码块贴合 Win11 内容区 */

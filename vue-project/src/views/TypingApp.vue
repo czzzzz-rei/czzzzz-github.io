@@ -165,46 +165,48 @@ const bestText = computed(() =>
           v-for="(m, id) in MODES"
           :key="id"
           @click="mode = id as Mode"
-          class="px-3 py-1 text-[12px] font-bold text-black border-none shadow-[inset_-1px_-1px_#0a0a0a,inset_1px_1px_#ffffff,inset_-2px_-2px_#808080,inset_2px_2px_#dfdfdf] active:shadow-[inset_-1px_-1px_#ffffff,inset_1px_1px_#0a0a0a] cursor-pointer"
-          :style="{ backgroundColor: mode === id ? '#a8d8a8' : '#c0c0c0' }"
+          class="px-3 py-1 text-[12px] rounded-md border transition-colors cursor-pointer"
+          :class="mode === id
+            ? 'bg-[#e8f1fb] border-[#0067c0] text-[#0067c0] font-semibold'
+            : 'bg-[#fdfdfd] border-black/10 text-[#1a1a1a] hover:bg-[#f6f6f6]'"
         >
           <i :class="m.icon" class="mr-1"></i>{{ m.name }}
         </button>
-        <div class="ml-auto text-[11px] text-gray-600">
-          最佳：<b class="text-[#000080]">{{ bestText }}</b>
+        <div class="ml-auto text-[11px] text-[#5d5d5d]">
+          最佳：<b class="text-[#0067c0]">{{ bestText }}</b>
         </div>
       </div>
 
       <!-- 实时统计 -->
       <div class="grid grid-cols-4 gap-2 mb-3 text-center text-[12px]">
-        <div class="bg-white shadow-win95-inset py-1.5">
-          <div class="text-lg font-bold text-[#000080] leading-tight">{{ wpm }}</div>
-          <div class="text-[10px] text-gray-600">{{ MODES[mode].unit }}</div>
+        <div class="bg-white border border-[#e5e5e5] rounded-md py-2">
+          <div class="text-lg font-semibold text-[#0067c0] leading-tight">{{ wpm }}</div>
+          <div class="text-[10px] text-[#8a8a8a]">{{ MODES[mode].unit }}</div>
         </div>
-        <div class="bg-white shadow-win95-inset py-1.5">
-          <div class="text-lg font-bold text-[#000080] leading-tight">{{ acc }}%</div>
-          <div class="text-[10px] text-gray-600">准确率</div>
+        <div class="bg-white border border-[#e5e5e5] rounded-md py-2">
+          <div class="text-lg font-semibold text-[#0067c0] leading-tight">{{ acc }}%</div>
+          <div class="text-[10px] text-[#8a8a8a]">准确率</div>
         </div>
-        <div class="bg-white shadow-win95-inset py-1.5">
-          <div class="text-lg font-bold text-[#000080] leading-tight">{{ fmtTime }}s</div>
-          <div class="text-[10px] text-gray-600">用时</div>
+        <div class="bg-white border border-[#e5e5e5] rounded-md py-2">
+          <div class="text-lg font-semibold text-[#0067c0] leading-tight">{{ fmtTime }}s</div>
+          <div class="text-[10px] text-[#8a8a8a]">用时</div>
         </div>
-        <div class="bg-white shadow-win95-inset py-1.5">
-          <div class="text-lg font-bold text-[#000080] leading-tight">{{ progress }}%</div>
-          <div class="text-[10px] text-gray-600">进度</div>
+        <div class="bg-white border border-[#e5e5e5] rounded-md py-2">
+          <div class="text-lg font-semibold text-[#0067c0] leading-tight">{{ progress }}%</div>
+          <div class="text-[10px] text-[#8a8a8a]">进度</div>
         </div>
       </div>
 
       <!-- 目标文本 -->
-      <div class="bg-white shadow-win95-inset p-3 text-[15px] leading-[2] font-mono break-all min-h-[96px]">
+      <div class="bg-white border border-[#e5e5e5] rounded-md p-3 text-[15px] leading-[2] font-mono break-all min-h-[96px] text-[#1a1a1a]">
         <span
           v-for="(ch, i) in target"
           :key="i"
           :class="{
-            'text-green-700': charState(i) === 'ok',
-            'bg-red-500 text-white': charState(i) === 'bad',
-            'bg-[#000080] text-white': charState(i) === 'cursor',
-            'text-gray-800': charState(i) === 'todo',
+            'text-[#0a7a0a]': charState(i) === 'ok',
+            'bg-[#c42b1c] text-white rounded-sm': charState(i) === 'bad',
+            'bg-[#0067c0] text-white rounded-sm': charState(i) === 'cursor',
+            'text-[#5d5d5d]': charState(i) === 'todo',
           }"
         >{{ ch }}</span>
       </div>
@@ -217,31 +219,31 @@ const bestText = computed(() =>
         autocapitalize="off"
         autocomplete="off"
         placeholder="在此开始输入，计时从第一个字符开始……"
-        class="w-full mt-2 h-[64px] bg-white shadow-win95-inset p-2 text-[13px] font-mono outline-none resize-none"
+        class="w-full mt-2 h-[64px] bg-white border border-[#e5e5e5] rounded-md p-2 text-[13px] font-mono outline-none resize-none focus:border-[#0067c0] text-[#1a1a1a]"
       ></textarea>
 
       <!-- 结算面板 -->
       <div v-if="finished" class="fixed inset-0 z-20 bg-black/30 flex items-center justify-center">
-        <div class="w-[340px] bg-[#c0c0c0] border-2 border-t-[#ffffff] border-l-[#ffffff] border-r-[#0a0a0a] border-b-[#0a0a0a] shadow-[6px_6px_16px_rgba(0,0,0,0.5)]">
-          <div class="h-[26px] bg-[linear-gradient(90deg,#000080,#1084d0)] flex items-center px-2">
-            <i class="fa fa-trophy text-white text-[11px] mr-2"></i>
-            <span class="text-white text-[12px] font-bold flex-1">打字成绩单</span>
+        <div class="w-[340px] bg-[#f3f3f3] border border-black/10 rounded-lg shadow-[0_16px_48px_rgba(0,0,0,0.28)] overflow-hidden">
+          <div class="h-10 flex items-center px-4 border-b border-black/[0.06]">
+            <i class="fa fa-trophy text-[#0067c0] text-[13px] mr-2"></i>
+            <span class="text-[#1a1a1a] text-[13px] font-semibold flex-1">打字成绩单</span>
           </div>
-          <div class="p-4 text-center">
-            <div v-if="newRecord" class="text-[#e03131] font-bold text-[12px] mb-2">🏆 新纪录！</div>
-            <div class="text-3xl font-bold text-[#000080]">{{ wpm }} <span class="text-sm">{{ MODES[mode].unit }}</span></div>
-            <div class="text-[12px] text-gray-700 mt-2">
+          <div class="p-5 text-center">
+            <div v-if="newRecord" class="text-[#c42b1c] font-semibold text-[12px] mb-2">🏆 新纪录！</div>
+            <div class="text-4xl font-semibold text-[#0067c0]">{{ wpm }} <span class="text-sm">{{ MODES[mode].unit }}</span></div>
+            <div class="text-[12px] text-[#5d5d5d] mt-2">
               准确率 {{ acc }}% · 用时 {{ fmtTime }}s · {{ target.length }} 字符
             </div>
-            <div class="text-[11px] text-gray-600 mt-1">本机最佳：{{ bestText }}</div>
+            <div class="text-[11px] text-[#8a8a8a] mt-1">本机最佳：{{ bestText }}</div>
             <div class="flex justify-center gap-2 mt-4">
-              <button @click="nextText" class="px-4 py-1 bg-[#c0c0c0] text-[12px] font-bold text-black border-none shadow-[inset_-1px_-1px_#0a0a0a,inset_1px_1px_#ffffff,inset_-2px_-2px_#808080,inset_2px_2px_#dfdfdf] active:shadow-[inset_-1px_-1px_#ffffff,inset_1px_1px_#0a0a0a] cursor-pointer">再来一段</button>
+              <button @click="nextText" class="win11-btn win11-btn-accent">再来一段</button>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="text-[10px] text-gray-500 mt-2">
+      <div class="text-[10px] text-[#8a8a8a] mt-2">
         提示：从第一个字符起自动计时 · 退格可修正 · 输入法在中文模式下正常使用
       </div>
     </div>

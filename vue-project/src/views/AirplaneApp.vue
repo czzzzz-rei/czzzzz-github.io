@@ -65,17 +65,17 @@ const onPointerDown = (e: PointerEvent) => { game?.canvasTap(); game?.handlePoin
 
       <div class="gm-console">
         <div class="gm-title">控制台</div>
-        <button class="gm-btn" :style="{ backgroundColor: bombCount > 0 ? '#ffd8a8' : '#c0c0c0' }" @click="onBomb">
+        <button class="gm-btn" :style="{ backgroundColor: bombCount > 0 ? '#fff3e0' : '#fdfdfd' }" @click="onBomb">
           <span class="gm-ico">💣</span>
-          <span class="gm-label">炸弹 <b :class="bombCount > 0 ? 'text-[#c00000]' : 'text-[#808080]'">×{{ bombCount }}</b></span>
+          <span class="gm-label">炸弹 <b :class="bombCount > 0 ? 'text-[#c42b1c]' : 'text-[#8a8a8a]'">×{{ bombCount }}</b></span>
           <span class="gm-key">X</span>
         </button>
-        <button class="gm-btn" :style="{ backgroundColor: gameState === 'paused' ? '#b8d8f8' : '#c0c0c0' }" @click="onPause">
+        <button class="gm-btn" :style="{ backgroundColor: gameState === 'paused' ? '#e8f1fb' : '#fdfdfd' }" @click="onPause">
           <span class="gm-ico">{{ gameState === 'paused' ? '▶' : '⏸' }}</span>
           <span class="gm-label">{{ gameState === 'paused' ? '继续游戏' : '暂停游戏' }}</span>
           <span class="gm-key">P</span>
         </button>
-        <button class="gm-btn" :style="{ backgroundColor: cheatInvincible ? '#f4b8f4' : '#c0c0c0' }" @click="onInvincible">
+        <button class="gm-btn" :style="{ backgroundColor: cheatInvincible ? '#f6ecfb' : '#fdfdfd' }" @click="onInvincible">
           <span class="gm-ico">★</span>
           <span class="gm-label">无敌{{ cheatInvincible ? '开' : '关' }}</span>
           <span class="gm-key">I</span>
@@ -102,46 +102,49 @@ const onPointerDown = (e: PointerEvent) => { game?.canvasTap(); game?.handlePoin
 .gm-title {
   display: none;
   font-size: 10px;
-  font-weight: bold;
-  color: #000080;
+  font-weight: 600;
+  color: #5d5d5d;
   padding: 0 2px 3px;
-  border-bottom: 1px solid #808080;
+  border-bottom: 1px solid #e5e5e5;
 }
 .gm-btn {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
-  border: none;
+  padding: 6px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
   cursor: pointer;
   text-align: left;
-  font-family: 'MS Sans Serif', Tahoma, 'Microsoft YaHei', sans-serif;
-  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #ffffff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
-  transition: filter 0.1s;
+  font-family: 'Segoe UI', 'Microsoft YaHei UI', sans-serif;
+  background: #fdfdfd;
+  color: #1a1a1a;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: background 0.1s;
 }
-.gm-btn:hover { filter: brightness(1.06); }
-.gm-btn:active { box-shadow: inset -1px -1px #ffffff, inset 1px 1px #0a0a0a; }
-.gm-ico { display: none; font-size: 15px; line-height: 1.1; }
-.gm-label { font-size: 11px; font-weight: bold; color: #000; line-height: 1.2; white-space: nowrap; }
+.gm-btn:hover { background: #f6f6f6; }
+.gm-btn:active { background: #f0f0f0; color: #5d5d5d; box-shadow: none; }
+.gm-ico { display: none; font-size: 15px; line-height: 1.1; color: #0067c0; }
+.gm-label { font-size: 11px; font-weight: 600; color: #1a1a1a; line-height: 1.2; white-space: nowrap; }
 .gm-key {
   font-size: 9px;
-  color: #666;
+  color: #5d5d5d;
   line-height: 1.1;
   margin-left: auto;
-  padding: 1px 4px;
-  background: #ffffff;
-  border: 1px solid;
-  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  padding: 1px 5px;
+  background: #f6f6f6;
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
 }
 .gm-hint {
   display: none;
   font-size: 9px;
   line-height: 1.7;
-  color: #666;
+  color: #8a8a8a;
   padding: 6px 2px 0;
   margin-top: 2px;
-  border-top: 1px solid #808080;
+  border-top: 1px solid #e5e5e5;
 }
 @media (min-width: 1024px) {
   .gm-console {

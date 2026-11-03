@@ -55,9 +55,9 @@ function resetSettings(): void {
       @close="router.push('/')"
     >
       <!-- Address Bar -->
-      <div class="flex items-center gap-2 px-2 py-1 border-b border-gray-300 mb-2">
-        <span class="text-xs">地址(D)</span>
-        <div class="flex-1 bg-white shadow-win95-inset px-2 py-0.5 text-sm flex items-center gap-2">
+      <div class="flex items-center gap-2 px-2 py-1 border-b border-black/5 mb-2">
+        <span class="text-xs text-[#5d5d5d]">地址(D)</span>
+        <div class="flex-1 bg-white border border-[#e5e5e5] rounded-md px-2 py-1 text-sm flex items-center gap-2 text-[#1a1a1a]">
             <i class="fa fa-folder-open text-yellow-400"></i>
             C:\控制面板\分类
         </div>
@@ -80,45 +80,47 @@ function resetSettings(): void {
       </div>
 
       <!-- 系统设置 -->
-      <div class="mt-4 pt-2 border-t border-t-[#808080] border-b border-b-[#ffffff]">
-        <div class="text-xs text-gray-700 font-bold mb-2">
-          <i class="fa fa-sliders mr-1"></i>系统设置
+      <div class="mt-4 pt-3 border-t border-black/10">
+        <div class="text-xs text-[#5d5d5d] font-semibold mb-2">
+          <i class="fa fa-sliders mr-1 text-[#0067c0]"></i>系统设置
         </div>
         <div class="flex flex-wrap items-center gap-2 text-[11px]">
-          <span class="text-gray-600">显示属性：</span>
+          <span class="text-[#5d5d5d]">显示属性：</span>
           <button
             v-for="(t, id) in THEMES"
             :key="id"
             @click="pickTheme(id as DesktopTheme)"
-            class="px-2 py-[3px] bg-[#c0c0c0] text-black border-none shadow-[inset_-1px_-1px_#0a0a0a,inset_1px_1px_#ffffff,inset_-2px_-2px_#808080,inset_2px_2px_#dfdfdf] active:shadow-[inset_-1px_-1px_#ffffff,inset_1px_1px_#0a0a0a] cursor-pointer font-bold"
-            :style="{ backgroundColor: desktopTheme === id ? '#a8d8a8' : '#c0c0c0' }"
+            class="px-2.5 py-1 rounded-md border transition-colors cursor-pointer"
+            :class="desktopTheme === id
+              ? 'bg-[#e8f1fb] border-[#0067c0] text-[#0067c0] font-semibold'
+              : 'bg-[#fdfdfd] border-black/10 text-[#1a1a1a] hover:bg-[#f6f6f6]'"
           >
-            <span v-if="t.bg" class="inline-block w-2.5 h-2.5 mr-1 align-middle border border-black" :style="{ background: t.bg }"></span>
+            <span v-if="t.bg" class="inline-block w-2.5 h-2.5 mr-1 align-middle rounded-sm border border-black/20" :style="{ background: t.bg }"></span>
             {{ t.name }}
           </button>
           <span class="w-full"></span>
           <button
             @click="petGoHome"
-            class="px-2 py-[3px] bg-[#c0c0c0] text-black border-none shadow-[inset_-1px_-1px_#0a0a0a,inset_1px_1px_#ffffff,inset_-2px_-2px_#808080,inset_2px_2px_#dfdfdf] active:shadow-[inset_-1px_-1px_#ffffff,inset_1px_1px_#0a0a0a] cursor-pointer"
+            class="px-2.5 py-1 rounded-md border border-black/10 bg-[#fdfdfd] text-[#1a1a1a] hover:bg-[#f6f6f6] active:bg-[#f0f0f0] transition-colors cursor-pointer"
           >
-            <i class="fa fa-home mr-1"></i>桌宠回任务栏
+            <i class="fa fa-home mr-1 text-[#0067c0]"></i>桌宠回任务栏
           </button>
           <button
             @click="openSysProps"
-            class="px-2 py-[3px] bg-[#c0c0c0] text-black border-none shadow-[inset_-1px_-1px_#0a0a0a,inset_1px_1px_#ffffff,inset_-2px_-2px_#808080,inset_2px_2px_#dfdfdf] active:shadow-[inset_-1px_-1px_#ffffff,inset_1px_1px_#0a0a0a] cursor-pointer"
+            class="px-2.5 py-1 rounded-md border border-black/10 bg-[#fdfdfd] text-[#1a1a1a] hover:bg-[#f6f6f6] active:bg-[#f0f0f0] transition-colors cursor-pointer"
           >
-            <i class="fa fa-info-circle mr-1"></i>系统属性
+            <i class="fa fa-info-circle mr-1 text-[#0067c0]"></i>系统属性
           </button>
           <button
             @click="resetSettings"
-            class="px-2 py-[3px] bg-[#c0c0c0] text-black border-none shadow-[inset_-1px_-1px_#0a0a0a,inset_1px_1px_#ffffff,inset_-2px_-2px_#808080,inset_2px_2px_#dfdfdf] active:shadow-[inset_-1px_-1px_#ffffff,inset_1px_1px_#0a0a0a] cursor-pointer"
+            class="px-2.5 py-1 rounded-md border border-black/10 bg-[#fdfdfd] text-[#1a1a1a] hover:bg-[#f6f6f6] active:bg-[#f0f0f0] transition-colors cursor-pointer"
           >
-            <i class="fa fa-undo mr-1"></i>恢复默认设置
+            <i class="fa fa-undo mr-1 text-[#0067c0]"></i>恢复默认设置
           </button>
         </div>
       </div>
 
-      <div class="mt-3 pt-2 text-xs text-gray-500 border-t border-gray-300">
+      <div class="mt-3 pt-2 text-xs text-[#8a8a8a] border-t border-black/5">
         {{ categories.length }} 个分类
       </div>
     </Window>
