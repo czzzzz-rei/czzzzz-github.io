@@ -303,11 +303,19 @@ function playAnim(name: string, opts?: { loop?: boolean; onEnd?: () => void }): 
   };
   next.addEventListener('error', loadGuard);
   const hardTimer = setTimeout(() => {
-    // 8s 还没就位（网络慢）→ 放弃等待直接切台，状态机继续走
-    if (my === animToken && !settled && next.readyState < 2) {
-      next.removeEventListener('loadeddata', onReady);
-      finish();
+    // 8s 还没就位（网络慢）→ 兜底切台：无论如何让新视频成为前台并尝试播放，
+    // 状态机继续走（若之后数据到了，loadeddata 再到时会因 animToken 失配被忽略）
+    if (my !== animToken || settled) return;
+    next.removeEventListener('loadeddata', onReady);
+    const old = videoA.value && videoB.value ? (frontIsA.value ? videoA.value : videoB.value) : null;
+    if (old && old !== next) {
+      old.pause();
+      old.classList.remove('is-front');
     }
+    next.classList.add('is-front');
+    if (videoA.value && videoB.value) frontIsA.value = next === videoA.value;
+    next.play().catch(() => { /* 播不了就黑一会儿，不再挂起 */ });
+    finish();
   }, 8000);
   const onReady = () => {
     if (my !== animToken) { next.removeEventListener('loadeddata', onReady); clearTimeout(hardTimer); return; }
@@ -327,14 +335,8 @@ function playAnim(name: string, opts?: { loop?: boolean; onEnd?: () => void }): 
   next.addEventListener('loadeddata', onReady);
   next.src = animUrl(name);
   next.load();
-  // 同步检查：src 赋值+load() 后若 readyState 已达标（HTTP 缓存命中时常见），
-  // loadeddata 不会再触发，必须立即手动走 onReady，否则动作卡死
-  if (next.readyState >= 2) {
-    onReady();
-  } else {
-    // 缓存未命中时 play() 会在数据到达后自动开演；此处只做启动尝试
-    next.play().catch(() => { /* 等 loadeddata 后 onReady 里再播 */ });
-  }
+  // 缓存命中时 loadeddata 可能不再触发，同步检查 readyState 立即切换
+  if (next.readyState >= 2) onReady();
 }
 
 function playIdle(): void {
