@@ -44,12 +44,12 @@ const CATEGORIES: Array<{ weight: number; noMirror?: boolean; actions: string[] 
 ];
 const NO_MIRROR = new Set<string>(CATEGORIES.filter(c => c.noMirror).flatMap(c => c.actions));
 
-// 全量动画清单（含移动/事件动画）：挂载后全部预加载，任何动作触发都零等待
-const ALL_ANIMS: string[] = Array.from(new Set([
+// 核心动画清单：玩法说明里所有容易触发的动作（待机/单击/拖拽/抛掷/睡眠/投喂/移动）。
+// 仅这些做预加载（约 20 个、10MB 内），其余 80+ 冷门动作仍按需加载。
+const CORE_ANIMS: string[] = Array.from(new Set([
   ...ANIM.idle, ...ANIM.turn, ...ANIM.drag, ...ANIM.sleep, ...ANIM.eat,
   ...ANIM.clicks, ...ANIM.dizzy,
   ...MOVE_ACTIONS.map(m => m.name),
-  ...CATEGORIES.flatMap(c => c.actions),
 ]));
 
 // ============ 台词库（大肥鱼语气） ============
@@ -269,12 +269,9 @@ function animUrl(name: string): string {
 function preloadAnim(name: string): void {
   if (animPreload.has(name)) return;
   animPreload.add(name);
-  // 静默预热：让浏览器缓存该 webm（HTTP 缓存持久生效，不清空 src，避免二次播放重新下载）
-  const v = document.createElement('video');
-  v.preload = 'auto';
-  v.muted = true;
-  v.src = animUrl(name);
-  v.load();
+  // 用 fetch 存入 HTTP 缓存（不建 video 元素，不占解码器——多个 video 元素
+  // 同时存在会挤占硬件解码队列，导致播放中的动画卡顿）
+  fetch(animUrl(name), { mode: 'same-origin' }).catch(() => { /* 预热失败无碍，播放时会再走网络 */ });
 }
 
 function playAnim(name: string, opts?: { loop?: boolean; onEnd?: () => void }): void {
@@ -286,23 +283,37 @@ function playAnim(name: string, opts?: { loop?: boolean; onEnd?: () => void }): 
   const my = ++animToken;
   currentAnim.value = name;
   next.loop = !!opts?.loop;
+  let settled = false;   // onEnd 只回调一次（ended 与 error 兜底可能都触发）
+  const finish = (): void => {
+    if (my !== animToken || settled) return;
+    settled = true;
+    opts?.onEnd?.();
+  };
   const onEnded = () => {
     if (my !== animToken) return;
     next.removeEventListener('ended', onEnded);
-    opts?.onEnd?.();
+    finish();
   };
   next.addEventListener('ended', onEnded);
-  // 加载兜底：素材加载失败/卡住时释放 token，防止状态机永久挂起
+  // 加载兜底：素材加载失败/卡住时直接结束本次动作，状态机绝不挂起
   const loadGuard = () => {
     if (my !== animToken) return;
     next.removeEventListener('error', loadGuard);
-    opts?.onEnd?.();
+    finish();
   };
   next.addEventListener('error', loadGuard);
+  const hardTimer = setTimeout(() => {
+    // 8s 还没就位（网络慢）→ 放弃等待直接切台，状态机继续走
+    if (my === animToken && !settled && next.readyState < 2) {
+      next.removeEventListener('loadeddata', onReady);
+      finish();
+    }
+  }, 8000);
   const onReady = () => {
-    if (my !== animToken) { next.removeEventListener('loadeddata', onReady); return; }
+    if (my !== animToken) { next.removeEventListener('loadeddata', onReady); clearTimeout(hardTimer); return; }
     next.removeEventListener('loadeddata', onReady);
     next.removeEventListener('error', loadGuard);
+    clearTimeout(hardTimer);
     // 双缓冲就位切换：淡入新视频，旧视频暂停退场
     const old = videoA.value && videoB.value ? (frontIsA.value ? videoA.value : videoB.value) : null;
     if (old && old !== next) {
@@ -314,14 +325,16 @@ function playAnim(name: string, opts?: { loop?: boolean; onEnd?: () => void }): 
     next.play().catch(() => { /* 自动播放被拦截时静默 */ });
   };
   next.addEventListener('loadeddata', onReady);
-  // 若已在缓存中（秒回），loadeddata 可能不再触发——直接检查状态
-  if (next.readyState >= 2) {
-    next.removeEventListener('loadeddata', onReady);
-    onReady();
-  }
   next.src = animUrl(name);
   next.load();
-  next.play().catch(() => { /* 等 loadeddata 后再播 */ });
+  // 同步检查：src 赋值+load() 后若 readyState 已达标（HTTP 缓存命中时常见），
+  // loadeddata 不会再触发，必须立即手动走 onReady，否则动作卡死
+  if (next.readyState >= 2) {
+    onReady();
+  } else {
+    // 缓存未命中时 play() 会在数据到达后自动开演；此处只做启动尝试
+    next.play().catch(() => { /* 等 loadeddata 后 onReady 里再播 */ });
+  }
 }
 
 function playIdle(): void {
@@ -491,10 +504,8 @@ function startMove(): void {
   if (realDist < 24) { playIdle(); schedule(1600); return; }
   moving.value = true;
   const startX = x.value;
-  const my = animToken;
   playAnim(act.name, {
     onEnd: () => {
-      if (my !== animToken) return;
       cancelAnimationFrame(moveRAF);
       x.value = target;
       moving.value = false;
@@ -502,10 +513,11 @@ function startMove(): void {
       schedule(1400 + Math.random() * 2400);
     },
   });
+  // 位移驱动：animToken 在 playAnim 内部会自增，此处改用 moving 标志退出循环
   const t0 = performance.now();
   const fallbackDur = 2600;
   const step = (): void => {
-    if (my !== animToken || !moving.value) return;
+    if (!moving.value) return;
     // 读当前前台视频的播放进度驱动位移（双缓冲下取 is-front 的那个）
     const v = frontIsA.value ? videoA.value : videoB.value;
     const dur = (v && Number.isFinite(v.duration) && v.duration > 0) ? v.duration * 1000 : fallbackDur;
@@ -523,10 +535,8 @@ function startAction(): void {
   const act = rollCategoryAction();
   if (!act) { playIdle(); schedule(2000); return; }
   busy.value = true;
-  const my = animToken;
   playAnim(act.name, {
     onEnd: () => {
-      if (my !== animToken) return;
       busy.value = false;
       if (Math.random() < 0.35) showBubble();
       schedule(1600 + Math.random() * 2600);
@@ -538,10 +548,8 @@ function startAction(): void {
 function react(): void {
   if (busy.value || sleeping.value) return;
   busy.value = true;
-  const my = animToken;
   playAnim(pick(ANIM.clicks), {
     onEnd: () => {
-      if (my !== animToken) return;
       busy.value = false;
       schedule(1500 + Math.random() * 2000);
     },
@@ -652,9 +660,8 @@ function settleFling(): void {
     mood.value = Math.max(0, mood.value - 2);
     say(pick(DIZZY_QUOTES));
     busy.value = true;
-    const my = animToken;
     playAnim(pick(ANIM.dizzy), {
-      onEnd: () => { if (my === animToken) busy.value = false; },
+      onEnd: () => { busy.value = false; },
     });
     if (dizzyTimer) clearTimeout(dizzyTimer);
     dizzyTimer = setTimeout(() => { dizzy.value = false; }, 1800);
@@ -823,10 +830,8 @@ function doFeed(): void {
     return;
   }
   snackVisible.value = true;
-  const my = animToken;
   playAnim(pick(ANIM.eat), {
     onEnd: () => {
-      if (my !== animToken) return;
       snackVisible.value = false;
       satiety.value = Math.min(100, satiety.value + MOOD.feedSatiety);
       mood.value = Math.min(100, mood.value + MOOD.feedMood);
@@ -1159,11 +1164,11 @@ onMounted(() => {
   if (isFloating()) showBubble();
   schedule(1800);
   vitalsTimer = setInterval(updateVitals, 20000);
-  // 全量预热：所有动画后台依次下载（浏览器 HTTP 缓存持久保存，
-  // 下载完断网也能播；带宽被首屏任务抢占时自动让路）
+  // 核心动画预热（仅玩法说明中易触发的 ~20 个，间隔 600ms 排队下载到 HTTP 缓存）；
+  // 冷门随机小动作（80+ 个）保持懒加载——触发时才下载，下载完成前待机动画继续播
   const warmup = (): void => {
-    ALL_ANIMS.forEach((name, i) => {
-      setTimeout(() => preloadAnim(name), i * 400);   // 间隔 400ms 排队，避免挤爆连接
+    CORE_ANIMS.forEach((name, i) => {
+      setTimeout(() => preloadAnim(name), i * 600);
     });
   };
   if ('requestIdleCallback' in window) {

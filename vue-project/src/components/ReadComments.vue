@@ -60,20 +60,6 @@ function injectGiscus(): void {
     loading: 'lazy',
   });
   box.appendChild(s);
-  // Chrome 头像缺失缓解：预连接 GitHub 头像 CDN（dns-prefetch + preconnect），
-  // 减少首屏头像因连接建立慢而超时缺失的概率。若被扩展强拦则无解（用户侧设置）。
-  const hints: Array<[string, string]> = [
-    ['dns-prefetch', 'https://avatars.githubusercontent.com'],
-    ['preconnect', 'https://avatars.githubusercontent.com'],
-    ['dns-prefetch', 'https://giscus.app'],
-  ];
-  for (const [rel, href] of hints) {
-    if (document.querySelector(`link[rel="${rel}"][href="${href}"]`)) continue;
-    const link = document.createElement('link');
-    link.rel = rel;
-    link.href = href;
-    document.head.appendChild(link);
-  }
 }
 
 function retry(): void {
@@ -100,14 +86,13 @@ function onMessage(e: MessageEvent): void {
   if (typeof d.resizeHeight === 'number') {
     status.value = 'ready';
     if (timeoutTimer) clearTimeout(timeoutTimer);
-    // Edge 抖动根治：完全忽略 giscus 的 resizeHeight 上报，改用固定高度 +
-    // 内部滚动（面板 body 本身就有 max-height + overflow）。iframe 定高后，
-    // 内部内容的增减只会触发 iframe 内部滚动，面板外框纹丝不动。
+    // Edge 抖动修复（温和版）：只在首次上报时把 iframe 定高，之后的上报全部忽略。
+    // iframe 高度 = 容器固定高度（380px），内容超出一律在 iframe 内部滚动，
+    // 面板外框完全不动；首次之外的 resize 不套用，杜绝反复伸缩。
     const iframe = boxEl.value?.querySelector('iframe.giscus-frame') as HTMLIFrameElement | null;
-    if (iframe) {
-      iframe.style.height = '100%';
-      iframe.style.setProperty('min-height', '100%', 'important');
-      iframe.style.setProperty('max-height', '100%', 'important');
+    if (iframe && !iframe.dataset.heightLocked) {
+      iframe.dataset.heightLocked = '1';
+      iframe.style.setProperty('height', '100%', 'important');
     }
   } else if (d.error) {
     if (status.value === 'loading') {
@@ -273,15 +258,13 @@ function toggle(): void {
   background: #fff;
   border: 1px solid #e5e5e5;
   border-radius: 4px;
-  height: 380px;                /* 固定高度：giscus 的 resizeHeight 上报被忽略，Edge 不再抖动 */
+  height: 420px;                /* 固定高度：giscus 后续 resizeHeight 上报被忽略，Edge 不再抖动 */
   position: relative;
 }
-/* giscus iframe 撑满固定高度容器 */
+/* giscus iframe 撑满固定高度容器（首次上报后 JS 会锁定 height） */
 .read-comments-box :deep(iframe.giscus-frame) {
   width: 100% !important;
-  height: 100% !important;
-  min-height: 100% !important;
-  max-height: 100% !important;
+  height: 420px !important;
   border: none;
   display: block;
 }
