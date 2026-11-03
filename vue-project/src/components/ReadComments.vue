@@ -20,10 +20,10 @@ let timeoutTimer: ReturnType<typeof setTimeout> | undefined;
 // giscus.app 生成的仓库配置（Announcements 分类：只有仓库维护者能创建讨论，
 // 访客只能回复，天然防止乱开主题帖）
 const GISCUS = {
-  repo: 'YangFang1999/YangFang1999.github.io',
-  repoId: 'R_kgDOQWog1A',
+  repo: 'czzzzz-rei/czzzzz-rei.github.io',
+  repoId: 'R_kgDOOi0ljg',
   category: 'Announcements',
-  categoryId: 'DIC_kwDOQWog1M4DKJgn',
+  categoryId: 'DIC_kwDOOi0ljs4DKS-Q',
 };
 
 function injectGiscus(): void {
@@ -51,10 +51,10 @@ function injectGiscus(): void {
     categoryId: GISCUS.categoryId,
     mapping: 'specific',
     term: `notes/${props.articleId}`,
-    strict: '0',
+    strict: '1',
     reactionsEnabled: '1',
     emitMetadata: '1',
-    inputPosition: 'top',
+    inputPosition: 'bottom',
     theme: 'light',
     lang: 'zh-CN',
     loading: 'lazy',
